@@ -1,4 +1,4 @@
-import Nav from "../components/Nav";
+import Nav from "../Components/Nav";
 import styled from "styled-components";
 import { useState } from "react";
 
