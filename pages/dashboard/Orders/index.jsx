@@ -2,7 +2,7 @@
 import styled from "styled-components";
 import { useEffect } from "react";
 import { useState } from "react";
-import MainDashboard from "../../../Components/Dashboard/main-dashboard";
+
 import Link from "next/link";
 import Image from "next/image";
 
@@ -119,12 +119,12 @@ let Orders = (props) => {
   const [isLoading, setLoading] = useState(true);
   const [error, seterror] = useState(true);
 
+  //Get orders on page load
   useEffect(() => {
-    let cookie = localStorage.getItem("cookie");
-
-    getOrders(cookie);
+    getOrders();
   }, []);
 
+  //Show/hide loading
   useEffect(() => {
     if (orders.length > 0 || !error) {
       setLoading(false);
@@ -133,7 +133,9 @@ let Orders = (props) => {
     }
   }, [orders, error]);
 
-  let getOrders = (cookie) => {
+  let getOrders = () => {
+    let cookie = localStorage.getItem("cookie");
+
     var myHeaders = new Headers();
     myHeaders.append("x-api-key", cookie);
 
@@ -197,7 +199,6 @@ let Orders = (props) => {
             <div className="orders">
               {orders.map((order) => {
                 return (
-                  // eslint-disable-next-line react/jsx-key
                   <motion.div
                     initial="hidden"
                     animate="visible"

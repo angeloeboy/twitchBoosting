@@ -150,14 +150,14 @@ let Customers = () => {
 
   const [searchResult, setsearchResult] = useState([]);
 
+  //Get customers on load
   useEffect(() => {
     getCustomers();
   }, []);
 
+  //Filter the customers || Valid or Banned
   useEffect(() => {
     if (Object.keys(customers).length != 0) {
-      // sessionStorage.setItem("Customers", JSON.stringify(customers));
-
       setloaded(true);
       let arr = [];
 

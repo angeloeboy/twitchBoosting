@@ -1,10 +1,8 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import MainDashboard from "./../../../Components/Dashboard/main-dashboard";
 import { useRouter } from "next/router";
 import styled from "styled-components";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import Loading from "./../../../Components/loading";
 import { AnimatePresence, motion } from "framer-motion";
 
 const OrderContainer = styled.div`
@@ -256,9 +254,7 @@ let Order = () => {
   const { id } = router.query;
   const [isloading, setisloading] = useState(true);
   const [orderDetails, setorderDetails] = useState({});
-  const [serviceType, setserviceType] = useState("");
   const [isOnline, setisOnline] = useState("");
-  const [cookie, setcookie] = useState("");
 
   //Get the max thread num
   const [maxDelay, setmaxDelay] = useState(0);
@@ -279,7 +275,6 @@ let Order = () => {
   useEffect(() => {
     if (id != undefined) {
       getOrderData();
-      setserviceType(orderDetails.ServiceType);
     }
   }, [id, isOnline]);
 
@@ -343,7 +338,7 @@ let Order = () => {
       )
         .then((response) => response.json())
         .then((result) => {
-          console.log(result.Response);
+          console.log(result);
           setisOnline(false);
         })
         .catch((error) => console.log("error", error));
@@ -354,7 +349,7 @@ let Order = () => {
       )
         .then((response) => response.json())
         .then((result) => {
-          console.log(result.Response);
+          console.log(result);
           setisOnline(true);
         })
         .catch((error) => console.log("error", error));

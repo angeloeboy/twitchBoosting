@@ -205,13 +205,13 @@ const Order = styled.div`
   }
 `;
 let Costumer = (props) => {
+  //Get email from link
+  const router = useRouter();
+  const { email } = router.query;
+
   const [customerData, setcustomerData] = useState({});
   const [loaded, setloaded] = useState(false);
   const [banned, setbanned] = useState();
-
-  const router = useRouter();
-
-  const { email } = router.query;
 
   useEffect(() => {
     if (email != undefined) {
@@ -220,8 +220,6 @@ let Costumer = (props) => {
   }, [email, banned]);
 
   useEffect(() => {
-    console.log(customerData);
-
     if (Object.keys(customerData).length !== 0) {
       setloaded(true);
     }
@@ -245,7 +243,6 @@ let Costumer = (props) => {
     )
       .then((response) => response.json())
       .then((result) => {
-        console.log(result.Response);
         setcustomerData(result.Response);
         setbanned(result.Response.Customer.Blacklisted);
       })

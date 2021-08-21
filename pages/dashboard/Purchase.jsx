@@ -102,7 +102,7 @@ let Purchase = (props) => {
   const [loaded, setloaded] = useState(false);
   const [code, setcode] = useState("");
 
-  const [data, setData] = useContext(MenuContext);
+  const [data, setData, updateProfileData] = useContext(MenuContext);
 
   const [successful, setsuccessful] = useState(false);
 
@@ -158,36 +158,12 @@ let Purchase = (props) => {
       .then((response) => response.json())
       .then((result) => {
         console.log(result.Response);
-        getProfileData();
         setsuccessful(true);
+        updateProfileData();
       })
       .catch((error) => console.log("error", error));
   };
 
-  let getProfileData = () => {
-    let cookie = localStorage.getItem("cookie");
-
-    var myHeaders = new Headers();
-    myHeaders.append("x-api-key", cookie);
-
-    var requestOptions = {
-      method: "GET",
-      headers: myHeaders,
-      redirect: "follow",
-    };
-
-    fetch(
-      "https://easyviews.herokuapp.com/Api/v1/Users/Account/Profile",
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result.Response);
-        localStorage.setItem("userObject", JSON.stringify(result.Response));
-        setData(result.Response);
-      })
-      .catch((error) => console.log("error", error));
-  };
   if (loaded) {
     var e = document.createElement("div");
     e.setAttribute("id", "sellix-container"),

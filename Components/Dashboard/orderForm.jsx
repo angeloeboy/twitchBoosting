@@ -82,7 +82,8 @@ let OrderForm = (props) => {
   const [twitchName, settwitchName] = useState("");
   const [message, setmessage] = useState("");
   const [error, seterror] = useState(false);
-  const [data, setData] = useContext(MenuContext);
+
+  const [data, setData, updateProfileData] = useContext(MenuContext);
 
   let handleTwitchNameChange = (e) => {
     let name = e.target.value;
@@ -125,37 +126,12 @@ let OrderForm = (props) => {
           seterror(false);
 
           setmessage(result.Response);
-          getProfileData();
+          updateProfileData();
         }
       })
       .catch((error) => console.log("error", error));
   };
 
-  let getProfileData = () => {
-    let cookie = localStorage.getItem("cookie");
-
-    var myHeaders = new Headers();
-    myHeaders.append("x-api-key", cookie);
-
-    var requestOptions = {
-      method: "GET",
-      headers: myHeaders,
-      redirect: "follow",
-    };
-
-    fetch(
-      "https://easyviews.herokuapp.com/Api/v1/Users/Account/Profile",
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        console.log(result.Response);
-
-        localStorage.setItem("userObject", JSON.stringify(result.Response));
-        setData(result.Response);
-      })
-      .catch((error) => console.log("error", error));
-  };
   return (
     <Div>
       <div className="inner">

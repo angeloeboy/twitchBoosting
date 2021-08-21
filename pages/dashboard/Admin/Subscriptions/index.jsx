@@ -3,11 +3,9 @@ import styled from "styled-components";
 import Image from "next/image";
 import searchIcon from "../../../../Images/search-icon.png";
 import { motion, AnimatePresence } from "framer-motion";
-import Link from "next/link";
-import GcDescContainer from "../../../../Components/Dashboard/GcDescContainer";
-import AddGc from "../../../../Components/Dashboard/AddGc";
-import SubsDescContainer from "./../../../../Components/Dashboard/SubsDescCointaner";
-import AddSubs from "./../../../../Components/Dashboard/AddSubs";
+
+import AddSubscriptionModal from "../../../../Components/Dashboard/Subscription/AddSubscriptionModal";
+import SubscriptonDescriptionModal from "./../../../../Components/Dashboard/Subscription/SubscriptonDescriptionModal";
 
 const GiftCardsContainer = styled.div`
   /* position: relative; */
@@ -389,7 +387,7 @@ let Subscriptions = () => {
           <AnimatePresence>
             {subsvisible && (
               <>
-                <SubsDescContainer
+                <SubscriptonDescriptionModal
                   subsData={subsData}
                   setgcVisible={setgcVisible}
                   setdeletedSubs={setdeletedSubs}
@@ -401,7 +399,7 @@ let Subscriptions = () => {
           <AnimatePresence>
             {addsubsVisible && (
               <>
-                <AddSubs
+                <AddSubscriptionModal
                   setaddsubsVisible={setaddsubsVisible}
                   setSubsLength={setSubsLength}
                 />

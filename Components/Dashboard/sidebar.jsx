@@ -3,9 +3,7 @@
 /* eslint-disable @next/next/link-passhref */
 import styled from "styled-components";
 import Link from "next/link";
-import icon from "../../Images/home-icon.png";
-import { useContext, useState } from "react";
-import { useEffect } from "react";
+import { useContext, useState, useEffect } from "react";
 import { MenuContext, MenuProvider } from "./../menuContext";
 import { useRouter } from "next/router";
 
@@ -298,7 +296,12 @@ let Sidebar = (props) => {
   }, [data]);
 
   useEffect(() => {
-    let clickedItem = router.pathname.replace("/dashboard/", "");
+    let clickedItem;
+    // if (router.pathname.includes("Admin")) {
+    //   clickedItem = router.pathname.replace("/dashboard/Admin", "");
+    // }
+
+    clickedItem = router.pathname.replace("/dashboard/", "");
     setselected(clickedItem);
   }, []);
 

@@ -76,7 +76,7 @@ let Div = styled.div`
     }
   }
 `;
-let GcDescContainer = ({ gcData, setgcVisible, setDeletedGc }) => {
+let GiftcardDescriptionModal = ({ gcData, setgcVisible, setDeletedGc }) => {
   const [showGcData, setshowGcData] = useState(true);
   const [showDelete, setshowDelete] = useState(false);
   const [deleteSuccess, setdeleteSuccess] = useState(false);
@@ -221,4 +221,4 @@ let GcDescContainer = ({ gcData, setgcVisible, setDeletedGc }) => {
   );
 };
 
-export default GcDescContainer;
+export default GiftcardDescriptionModal;

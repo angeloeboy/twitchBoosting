@@ -96,7 +96,7 @@ let Div = styled.div`
   }
 `;
 
-let AddSubs = ({ setaddsubsVisible, setSubsLength }) => {
+let AddSubscriptionModal = ({ setaddsubsVisible, setSubsLength }) => {
   const [generateSuccess, setgenerateSuccess] = useState(false);
 
   const [name, setname] = useState("");
@@ -236,8 +236,8 @@ let AddSubs = ({ setaddsubsVisible, setSubsLength }) => {
                       value={duration}
                       onChange={(e) => setduration(e.target.value)}
                     >
-                      <option value="seven">7</option>
-                      <option value="thirty">30</option>
+                      <option value={7}>7</option>
+                      <option value={30}>30</option>
                     </select>
                   </label>
                   {serviceType == "FollowBot" && (
@@ -293,4 +293,4 @@ let AddSubs = ({ setaddsubsVisible, setSubsLength }) => {
   );
 };
 
-export default AddSubs;
+export default AddSubscriptionModal;

@@ -11,7 +11,6 @@ const DashBoard = styled.div`
 `;
 
 let Dashboard = () => {
-  const [cookieFromLocal, setcookieFromLocal] = useState("");
   const router = useRouter();
 
   useEffect(() => {

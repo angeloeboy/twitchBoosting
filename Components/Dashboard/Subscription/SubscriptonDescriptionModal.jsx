@@ -89,7 +89,11 @@ let Div = styled.div`
     }
   }
 `;
-let SubsDescContainer = ({ subsData, setgcVisible, setdeletedSubs }) => {
+let SubscriptonDescriptionModal = ({
+  subsData,
+  setgcVisible,
+  setdeletedSubs,
+}) => {
   const [setSubsData, setshowSubsData] = useState(true);
   const [showDelete, setshowDelete] = useState(false);
   const [deleteSuccess, setdeleteSuccess] = useState(false);
@@ -238,4 +242,4 @@ let SubsDescContainer = ({ subsData, setgcVisible, setdeletedSubs }) => {
   );
 };
 
-export default SubsDescContainer;
+export default SubscriptonDescriptionModal;

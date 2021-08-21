@@ -1,9 +1,7 @@
 import styled from "styled-components";
-import MainDashboard from "./../../Components/Dashboard/main-dashboard";
 import { useState, useEffect } from "react";
 import OrderForm from "../../Components/Dashboard/orderForm";
 import { motion } from "framer-motion";
-import { MenuContext } from "../../Components/menuContext";
 
 const Div = styled.div`
   .header {

@@ -4,8 +4,8 @@ import Image from "next/image";
 import searchIcon from "../../../../Images/search-icon.png";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import GcDescContainer from "../../../../Components/Dashboard/GcDescContainer";
-import AddGc from "../../../../Components/Dashboard/AddGc";
+import AddGiftCardModal from "../../../../Components/Dashboard/Giftcard/AddGiftCardModal";
+import GiftcardDescriptionModal from "./../../../../Components/Dashboard/Giftcard/GiftcardDescriptionModal";
 
 const GiftCardsContainer = styled.div`
   /* position: relative; */
@@ -439,7 +439,7 @@ let GiftCards = () => {
           <AnimatePresence>
             {gcVisible && (
               <>
-                <GcDescContainer
+                <GiftcardDescriptionModal
                   gcData={gcData}
                   setgcVisible={setgcVisible}
                   setDeletedGc={setDeletedGc}
@@ -451,7 +451,7 @@ let GiftCards = () => {
           <AnimatePresence>
             {addGiftCardVisible && (
               <>
-                <AddGc
+                <AddGiftCardModal
                   setaddGiftCardVisible={setaddGiftCardVisible}
                   setgiftCardLength={setgiftCardLength}
                 />

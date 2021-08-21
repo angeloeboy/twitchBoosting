@@ -91,7 +91,7 @@ let Div = styled.div`
   }
 `;
 
-let AddGc = ({ setaddGiftCardVisible, setgiftCardLength }) => {
+let AddGiftCardModal = ({ setaddGiftCardVisible, setgiftCardLength }) => {
   const [codeAmount, setcodeAmount] = useState(1);
   const [creditValue, setcreditValue] = useState(1);
 
@@ -222,4 +222,4 @@ let AddGc = ({ setaddGiftCardVisible, setgiftCardLength }) => {
   );
 };
 
-export default AddGc;
+export default AddGiftCardModal;

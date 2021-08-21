@@ -6,6 +6,9 @@ import { MenuProvider } from "../menuContext";
 import { motion } from "framer-motion";
 import router from "next/router";
 import { MenuContext } from "./../menuContext";
+import Image from "next/image";
+
+import loading from "../../Images/rocketLoading.gif";
 
 const Div = styled.div`
   min-height: 100vh;
@@ -32,6 +35,21 @@ const Div = styled.div`
 
     @media (max-width: 550px) {
       padding: 40px 5%;
+    }
+  }
+
+  .loading {
+    /* position: relative; */
+    /* background-color: red; */
+    width: 100%;
+    display: grid;
+    align-items: center;
+    justify-items: center;
+    .img-container {
+      /* position: relative;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%); */
     }
   }
 `;
@@ -105,9 +123,13 @@ let MainDashboard = ({ children }) => {
     );
   } else {
     return (
-      <div>
-        <h1>Loading</h1>
-      </div>
+      <Div>
+        <div className="loading">
+          <div className="img-container">
+            <Image src={loading} alt="Loading rocket" />
+          </div>
+        </div>
+      </Div>
     );
   }
 };
