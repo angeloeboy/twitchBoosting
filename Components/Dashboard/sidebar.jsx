@@ -62,6 +62,7 @@ const SidebarDiv = styled.div`
       }
     }
   }
+
   .menu {
     transition: all 0.3s ease;
 
@@ -97,6 +98,21 @@ const SidebarDiv = styled.div`
           }
         }
       }
+    }
+  }
+
+  .verify {
+    position: fixed;
+    width: 100vw;
+    top: 0;
+    left: 0px;
+    background-color: #ff5c5c60;
+    text-align: center;
+    z-index: 999;
+    padding: 10px;
+    transition: all 0.3s ease;
+    &:hover {
+      background-color: #ff5c5c;
     }
   }
 
@@ -230,11 +246,6 @@ let Sidebar = (props) => {
       clicked: false,
       img: purchaseImg,
     },
-    // {
-    //   name: "Redeem",
-    //   clicked: false,
-    //   img: cartImg,
-    // },
     {
       name: "Plans",
       clicked: false,
@@ -324,6 +335,12 @@ let Sidebar = (props) => {
 
   return (
     <SidebarDiv visible={isMenuVisible}>
+      {!userData.Verified && (
+        <div className="verify">
+          <p>Your account is unverified</p>
+        </div>
+      )}
+
       <div
         onClick={() => setIsMenuvisible(!isMenuVisible)}
         className="toggleMenu"
@@ -337,7 +354,7 @@ let Sidebar = (props) => {
       </div>
       <div className="menu-container">
         <div className="account-details">
-          <p className="account-name">Angel Art</p>
+          {/* <p className="account-name">{userData.Email}</p> */}
           <p> Type: {userData.AccountType}</p>
           <p>Credits: {userData.Credits}</p>
         </div>

@@ -1,7 +1,7 @@
-import Script from "next/script";
-import { useEffect, useState } from "react";
-import Subscriptions from "./Admin/Subscriptions/index";
+import { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
+
+import { MenuContext } from "./../../Components/menuContext";
 
 const Div = styled.div`
   .subscriptions-container {
@@ -102,6 +102,10 @@ let Purchase = (props) => {
   const [loaded, setloaded] = useState(false);
   const [code, setcode] = useState("");
 
+  const [data, setData] = useContext(MenuContext);
+
+  const [successful, setsuccessful] = useState(false);
+
   useEffect(() => {
     getSubscriptions();
   }, []);
@@ -154,10 +158,36 @@ let Purchase = (props) => {
       .then((response) => response.json())
       .then((result) => {
         console.log(result.Response);
+        getProfileData();
+        setsuccessful(true);
       })
       .catch((error) => console.log("error", error));
   };
 
+  let getProfileData = () => {
+    let cookie = localStorage.getItem("cookie");
+
+    var myHeaders = new Headers();
+    myHeaders.append("x-api-key", cookie);
+
+    var requestOptions = {
+      method: "GET",
+      headers: myHeaders,
+      redirect: "follow",
+    };
+
+    fetch(
+      "https://easyviews.herokuapp.com/Api/v1/Users/Account/Profile",
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        console.log(result.Response);
+        localStorage.setItem("userObject", JSON.stringify(result.Response));
+        setData(result.Response);
+      })
+      .catch((error) => console.log("error", error));
+  };
   if (loaded) {
     var e = document.createElement("div");
     e.setAttribute("id", "sellix-container"),
@@ -284,6 +314,8 @@ let Purchase = (props) => {
           />
           <button onClick={(e) => redeemCode(e)}>Redeem</button>
         </div>
+
+        {successful && <p>Success</p>}
       </div>
     </Div>
   );

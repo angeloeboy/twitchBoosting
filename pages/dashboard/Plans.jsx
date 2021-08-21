@@ -166,7 +166,6 @@ let Plans = () => {
     )
       .then((response) => response.json())
       .then((result) => {
-        // console.log(result.Response);
         setPlans(result.Response);
       })
       .catch((error) => console.log("error", error));

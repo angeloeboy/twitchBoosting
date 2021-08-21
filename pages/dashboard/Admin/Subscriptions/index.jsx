@@ -7,6 +7,7 @@ import Link from "next/link";
 import GcDescContainer from "../../../../Components/Dashboard/GcDescContainer";
 import AddGc from "../../../../Components/Dashboard/AddGc";
 import SubsDescContainer from "./../../../../Components/Dashboard/SubsDescCointaner";
+import AddSubs from "./../../../../Components/Dashboard/AddSubs";
 
 const GiftCardsContainer = styled.div`
   /* position: relative; */
@@ -34,7 +35,7 @@ const GiftCardsContainer = styled.div`
       border: 1px solid white;
       background-color: transparent;
       color: white;
-      width: 132px;
+      width: 150px;
       border-radius: 8px;
       padding: 14px 0px;
       margin-left: 16px;
@@ -202,17 +203,17 @@ let Subscriptions = () => {
   const [searchedSubscription, setsearchedSubscription] = useState("");
 
   const [searchResult, setSearchResult] = useState([]);
-  const [addsubsVisible, setaddGiftCardVisible] = useState(false);
+  const [addsubsVisible, setaddsubsVisible] = useState(false);
 
   const [subsvisible, setgcVisible] = useState(false);
   const [subsData, setSubsData] = useState({});
 
   const [deletedSubs, setdeletedSubs] = useState("");
-  const [giftCardLength, setgiftCardLength] = useState("");
+  const [subsLength, setSubsLength] = useState(0);
 
   useEffect(() => {
     getSubscriptions();
-  }, [deletedSubs]);
+  }, [deletedSubs, subsLength]);
 
   useEffect(() => {
     if (Object.keys(subscriptions).length != 0) {
@@ -287,7 +288,7 @@ let Subscriptions = () => {
             <h1>Subscription</h1>
           </div>
 
-          <button className="giftCard-btn">Add GiftCard</button>
+          <button className="giftCard-btn">Add Subscriptions</button>
         </div>
         <div className="search-bar">
           <div>
@@ -323,7 +324,7 @@ let Subscriptions = () => {
 
           <button
             className="giftCard-btn"
-            onClick={() => setaddGiftCardVisible(true)}
+            onClick={() => setaddsubsVisible(true)}
           >
             Add Subscriptions
           </button>
@@ -400,9 +401,9 @@ let Subscriptions = () => {
           <AnimatePresence>
             {addsubsVisible && (
               <>
-                <AddGc
-                  setaddGiftCardVisible={setaddGiftCardVisible}
-                  setgiftCardLength={setgiftCardLength}
+                <AddSubs
+                  setaddsubsVisible={setaddsubsVisible}
+                  setSubsLength={setSubsLength}
                 />
               </>
             )}

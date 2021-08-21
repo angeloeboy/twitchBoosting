@@ -1,10 +1,11 @@
 import styled from "styled-components";
 import Orders from "../../pages/dashboard/Orders";
 import Sidebar from "./sidebar";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { MenuProvider } from "../menuContext";
 import { motion } from "framer-motion";
 import router from "next/router";
+import { MenuContext } from "./../menuContext";
 
 const Div = styled.div`
   min-height: 100vh;
@@ -37,6 +38,7 @@ const Div = styled.div`
 
 let MainDashboard = ({ children }) => {
   const [visible, setvisible] = useState(false);
+  // const [data, setData] = useContext(MenuContext);
 
   useEffect(() => {
     let cookie = localStorage.getItem("cookie");
