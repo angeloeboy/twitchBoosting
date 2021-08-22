@@ -17,7 +17,8 @@ const Feat = styled.div`
 
   .title {
     font-weight: 500;
-    font-weight: 24px;
+    font-size: 30px;
+
     span {
       font-weight: bold;
       color: #fd9a01;
@@ -71,9 +72,9 @@ const Features = () => {
     <Feat>
       <div className="container">
         <p className="subtitle">What we offer</p>
-        <h1 className="title">
+        <h2 className="title">
           The most stable twitch viewer bot, <span>Guaranteed</span>
-        </h1>
+        </h2>
 
         <p className="texts">
           We&apos;re not kidding. You can compare if you&apos;d like. If
@@ -89,7 +90,7 @@ const Features = () => {
 
         <div className="features-container">
           <div className="feature">
-            <Image src={icon1} alt="Feature icon" />
+            <Image src={icon1} alt="Feature icon 1" />
             <h3>Lorem Ipsum</h3>
             <p>
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc,
@@ -99,7 +100,7 @@ const Features = () => {
           </div>
 
           <div className="feature">
-            <Image src={icon1} alt="Feature icon" />
+            <Image src={icon1} alt="Feature icon 2" />
             <h3>Lorem Ipsum</h3>
             <p>
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc,
@@ -108,7 +109,7 @@ const Features = () => {
           </div>
 
           <div className="feature">
-            <Image src={icon1} alt="Feature icon" />
+            <Image src={icon1} alt="Feature icon 3" />
             <h3>Lorem Ipsum</h3>
             <p>
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc,
@@ -116,7 +117,7 @@ const Features = () => {
           </div>
 
           <div className="feature">
-            <Image src={icon1} alt="Feature icon" />
+            <Image src={icon1} alt="Feature icon 4" />
             <h3>Lorem Ipsum</h3>
             <p>
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc,

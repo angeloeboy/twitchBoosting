@@ -33,7 +33,7 @@ const Div = styled.div`
 
     .title {
       font-weight: bold;
-      font-weight: 24px;
+      font-size: 30px;
     }
 
     .texts {
@@ -61,7 +61,7 @@ const Div = styled.div`
           border-top: 8px solid #192377;
           transition: all 0.2s ease;
           width: 100%;
-          h1 {
+          h3 {
             font-size: 50px;
           }
 
@@ -134,11 +134,9 @@ const Pricing = () => {
   return (
     <Div>
       <div className="container">
-        {/* <Image src={icon1} alt="Feature icon" /> */}
-
         <div className="text-container">
           <p className="subtitle">Pricing</p>
-          <h1 className="title">See our competitive pricing</h1>
+          <h2 className="title">See our competitive pricing</h2>
           <p className="texts">
             We offer the most competetive prices in the market. You have
             flexible pricings with different services.
@@ -151,7 +149,7 @@ const Pricing = () => {
               return (
                 // eslint-disable-next-line react/jsx-key
                 <div className="price" key={price}>
-                  <h1>{price}</h1>
+                  <h3>{price}</h3>
                   <p className="viewers">Viewers</p>
                   <p className="per">50$/week</p>
                 </div>

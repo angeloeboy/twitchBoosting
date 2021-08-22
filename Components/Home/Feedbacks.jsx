@@ -16,7 +16,7 @@ const Div = styled.div`
 
   .title {
     font-weight: bold;
-    font-weight: 24px;
+    font-size: 30px;
     color: white;
   }
 `;
@@ -27,7 +27,7 @@ const Feedback = () => {
       <div className="container">
         <div className="text-container">
           <p className="subtitle">Feedbacks</p>
-          <h1 className="title">See what our clients tell about us</h1>
+          <h2 className="title">See what our clients tell about us</h2>
         </div>
       </div>
     </Div>
