@@ -4,8 +4,11 @@ import stars from "../Images/stars-login.png";
 import Image from "next/image";
 import Link from "next/link";
 import { uid, suid } from "rand-token";
+import { useRouter } from "next/router";
+import spinner from "../Images/spinner.gif";
 import { motion } from "framer-motion";
 import Head from "next/head";
+import TopNotification from "./../Components/Dashboard/TopNotification";
 
 const Div = styled.div`
   display: flex;
@@ -28,7 +31,6 @@ const Div = styled.div`
   .loginform {
     width: 60%;
     display: inline-block;
-
     display: flex;
     align-items: center;
     justify-content: center;
@@ -68,27 +70,35 @@ const Div = styled.div`
           font-size: 14px;
           color: #192377;
           margin-top: 50px;
-          &:nth-child(2),
-          &:nth-child(3) {
+          &:nth-child(2) {
             margin-top: 27px;
             display: block;
           }
         }
 
+        .forgotPass {
+          text-align: right;
+          font-weight: 400;
+          font-size: 14px;
+        }
+
         .submit {
           background-color: #192377;
-          color: white;
           font-weight: bold;
-          font-size: 16px;
           transition: all 0.4s ease;
-          margin-top: 48px;
           &:hover {
             background-color: #2332bd;
           }
-        }
 
-        .error {
-          color: red;
+          input {
+            color: white;
+            font-size: 16px;
+          }
+
+          .spinner {
+            width: 50px;
+            margin: 0 auto;
+          }
         }
       }
     }
@@ -106,95 +116,77 @@ const Div = styled.div`
       height: 100vh;
 
       .form {
-        width: 80%;
+        width: 100%;
         max-width: 400px;
+      }
+    }
+  }
+
+  @media (max-width: 420px) {
+    .loginform {
+      .form {
+        width: 80%;
         margin: 0 auto;
       }
     }
   }
 `;
 
-let Register = () => {
-  const [email, setEmail] = useState("");
+let ResetPassword = () => {
+  const router = useRouter();
+  const { VerificationCode } = router.query;
+
   const [password, setPassword] = useState("");
-  const [repeatPass, setrepeatPass] = useState("");
-  const [passError, setpassError] = useState(false);
-  const [emailError, setemailError] = useState(false);
-  const [regReady, setregReady] = useState();
-  const [loaded, setloaded] = useState(false);
+  const [loading, setloading] = useState(false);
 
+  const [succesfullPassReset, setsuccesfullPassReset] = useState(false);
   useEffect(() => {
-    if (!emailError && !passError && loaded) {
-      setregReady(true);
-
-      if (regReady) {
-        let myHeaders = new Headers();
-        myHeaders.append("Content-Type", "application/json");
-
-        let raw = JSON.stringify({
-          Email: email,
-          Password: password,
-          Token: uid(12),
-        });
-
-        let requestOptions = {
-          method: "POST",
-          headers: myHeaders,
-          body: raw,
-          redirect: "follow",
-        };
-
-        fetch(
-          "https://easyviews.herokuapp.com/Api/v1/Account/Register",
-          requestOptions
-        )
-          .then((response) => response.text())
-          .then((result) => console.log(result))
-          .catch((error) => console.log("error", error));
-      }
-    } else {
-      setregReady(false);
+    if (VerificationCode != undefined) {
+      console.log(VerificationCode);
     }
-  }, [emailError, passError, regReady, loaded]);
-
-  let handleEmailChange = (e) => {
-    setEmail(e.target.value);
-  };
+  }, [VerificationCode]);
 
   let handlePassChange = (e) => {
     setPassword(e.target.value);
   };
 
-  let handleRepeatPass = (e) => {
-    setrepeatPass(e.target.value);
-  };
-
-  let handleSubmit = (e) => {
+  let resetPassword = (e) => {
     e.preventDefault();
 
-    if (password != repeatPass) {
-      setpassError(true);
-    } else {
-      setpassError(false);
-    }
+    let myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
 
-    if (!email.includes("@")) {
-      setemailError(true);
-    } else {
-      setemailError(false);
-    }
+    let raw = JSON.stringify({
+      VerificationCode: VerificationCode,
+      Password: password,
+    });
 
-    setloaded(true);
+    let requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow",
+    };
+
+    fetch(
+      "https://easyviews.herokuapp.com/Api/v1/Account/ForgotPassword/ResetPassword",
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        console.log(result);
+
+        if (result.Error == 0) {
+          setsuccesfullPassReset(true);
+        }
+      })
+      .catch((error) => console.log("error", error));
   };
-
   return (
     <Div>
       <Head>
-        <title>Easyviews | Register</title>
-        <meta
-          name="description"
-          content="Create an account to Easyviews "
-        ></meta>
+        <title>Easyviews | Login</title>
+        <meta name="description" content="Login to Easyviews "></meta>
         <meta
           property="og:title"
           content="Easyviews | Boost your Twitch Channel"
@@ -205,6 +197,7 @@ let Register = () => {
           content="width=device-width,initial-scale=1.0"
         ></meta>
       </Head>
+
       <div className="greetings">
         <div className="img-container">
           <Image src={stars} alt="Stars" />
@@ -238,20 +231,8 @@ let Register = () => {
           }}
         >
           <div className="form">
-            <h2>Sign up</h2>
-            <p>We’re happy to see you back! Sign in to your account</p>
-
-            <form onSubmit={(e) => handleSubmit(e)}>
-              <label htmlFor="">
-                Email
-                <input
-                  type="text"
-                  placeholder="Enter email"
-                  value={email}
-                  onChange={(e) => handleEmailChange(e)}
-                />
-              </label>
-
+            <h2>Password Reset</h2>
+            <form onSubmit={(e) => resetPassword(e)}>
               <label htmlFor="" className="password">
                 Password
                 <input
@@ -259,38 +240,34 @@ let Register = () => {
                   placeholder="Enter password"
                   value={password}
                   onChange={(e) => handlePassChange(e)}
+                  required
                 />
+                <div className="submit">
+                  {loading ? (
+                    <div className="spinner">
+                      <Image src={spinner} alt="loading" />
+                    </div>
+                  ) : (
+                    <input type="submit" value="Submit" />
+                  )}
+                </div>
               </label>
-
-              <label htmlFor="" className="password">
-                Repeat password
-                <input
-                  type="password"
-                  placeholder="Enter password"
-                  value={repeatPass}
-                  onChange={(e) => handleRepeatPass(e)}
-                />
-              </label>
-              <p className="error">
-                {passError ? "Password doesn't match" : ""}
-              </p>
-              <p className="error">
-                {emailError ? "Please input a valid email" : ""}
-              </p>
-
-              <input type="submit" value="Sign Up" className="submit" />
             </form>
             <p>
-              Already have an account?{" "}
-              <Link href="/login">
-                <a>Log in</a>
+              Dont have an account?{" "}
+              <Link href="/register">
+                <a>Sign up</a>
               </Link>
             </p>
           </div>
         </motion.div>
       </div>
+
+      {succesfullPassReset && (
+        <TopNotification text={"Password Reset Success!"} />
+      )}
     </Div>
   );
 };
 
-export default Register;
+export default ResetPassword;

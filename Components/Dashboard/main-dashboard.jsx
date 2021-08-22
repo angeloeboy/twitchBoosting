@@ -56,7 +56,7 @@ const Div = styled.div`
 
 let MainDashboard = ({ children }) => {
   const [visible, setvisible] = useState(false);
-  // const [data, setData] = useContext(MenuContext);
+  const [logout, setlogout] = useState(false);
 
   useEffect(() => {
     let cookie = localStorage.getItem("cookie");
@@ -84,7 +84,10 @@ let MainDashboard = ({ children }) => {
             if (result.Error == 0) {
               setvisible(true);
               sessionStorage.setItem("loggedIn", "true");
-              console.log("testing testing");
+              localStorage.setItem(
+                "userObject",
+                JSON.stringify(result.Response)
+              );
             }
           })
           .catch((error) => console.log("error", error));
@@ -92,13 +95,15 @@ let MainDashboard = ({ children }) => {
     } else {
       setvisible(true);
     }
-  }, []);
+
+    console.log("Main dashboard");
+  }, [logout]);
 
   if (visible) {
     return (
       <MenuProvider>
         <Div>
-          <Sidebar />
+          <Sidebar setlogout={setlogout} />
           <div className="children">
             <motion.div
               initial="hidden"

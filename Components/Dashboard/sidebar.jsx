@@ -109,8 +109,25 @@ const SidebarDiv = styled.div`
     z-index: 999;
     padding: 10px;
     transition: all 0.3s ease;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     &:hover {
       background-color: #ff5c5c;
+    }
+    p {
+      margin-right: 20px;
+    }
+    button {
+      margin-left: 10px;
+      padding: 10px;
+      background-color: transparent;
+      border: 1px solid white;
+      color: white;
+
+      &:hover {
+        background-color: #ee3737;
+      }
     }
   }
 
@@ -287,12 +304,10 @@ let Sidebar = (props) => {
 
   const [selected, setselected] = useState("");
 
+  const [isNotVerifiedVisible, setisNotVerifiedVisible] = useState(true);
   useEffect(() => {
-    if (!loaded) {
-      getProfileData();
-    }
-
-    setuserData(data);
+    setuserData(JSON.parse(localStorage.getItem("userObject")));
+    console.log("sidebar");
   }, [data]);
 
   useEffect(() => {
@@ -302,12 +317,9 @@ let Sidebar = (props) => {
 
     if (router.pathname.includes("Admin")) {
       clickedItem = clickedItem.split("/")[0] + "/" + clickedItem.split("/")[1];
-      console.log(clickedItem);
     } else {
       clickedItem = clickedItem.split("/")[0];
-      console.log(clickedItem);
     }
-    console.log(clickedItem);
 
     setselected(clickedItem);
   }, []);
@@ -337,11 +349,42 @@ let Sidebar = (props) => {
       .catch((error) => console.log("error", error));
   };
 
+  let sendVerification = () => {
+    let cookie = localStorage.getItem("cookie");
+
+    var myHeaders = new Headers();
+    myHeaders.append("x-api-key", cookie);
+
+    var requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      redirect: "follow",
+    };
+
+    fetch(
+      "https://easyviews.herokuapp.com/Api/v1/Users/Account/SendVerification",
+      requestOptions
+    )
+      .then((response) => response.text())
+      .then((result) => console.log(result))
+      .catch((error) => console.log("error", error));
+  };
+
   return (
     <SidebarDiv visible={isMenuVisible}>
-      {!userData.Verified && (
+      {!userData.Verified && isNotVerifiedVisible && (
         <div className="verify">
           <p>Your account is unverified</p>
+          <button
+            onClick={() => {
+              setTimeout(() => {
+                setisNotVerifiedVisible(false);
+              }, 1000);
+              sendVerification();
+            }}
+          >
+            Send Verification
+          </button>
         </div>
       )}
 
@@ -361,6 +404,15 @@ let Sidebar = (props) => {
           {/* <p className="account-name">{userData.Email}</p> */}
           <p> Type: {userData.AccountType}</p>
           <p>Credits: {userData.Credits}</p>
+          <p
+            onClick={() => {
+              localStorage.clear();
+              sessionStorage.clear();
+              props.setlogout(true);
+            }}
+          >
+            Logout
+          </p>
         </div>
 
         <div className="menu">

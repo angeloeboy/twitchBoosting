@@ -7,6 +7,7 @@ import Hero from '../Components/Home/Hero';
 import Features from './../Components/Home/Features';
 import Pricing from './../Components/Home/Pricing';
 import Feedback from './../Components/Home/Feedbacks';
+import Footer from '../Components/Home/Footer';
 
 
 
@@ -29,6 +30,7 @@ export default function Home() {
       <Features/>
       <Pricing/>
       <Feedback/>
+      <Footer/>
     </>
   
   )

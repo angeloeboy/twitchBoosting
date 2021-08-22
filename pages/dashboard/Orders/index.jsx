@@ -152,7 +152,6 @@ let Orders = (props) => {
       .then((response) => response.json())
       .then((result) => {
         setorders([...result.Response]);
-        console.log(result.Response);
 
         if (result.Error == 0) {
           seterror(false);

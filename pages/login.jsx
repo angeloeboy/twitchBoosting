@@ -116,8 +116,17 @@ const Div = styled.div`
       height: 100vh;
 
       .form {
-        width: 80%;
+        width: 100%;
         max-width: 400px;
+      }
+    }
+  }
+
+  @media (max-width: 420px) {
+    .loginform {
+      .form {
+        width: 80%;
+        margin: 0 auto;
       }
     }
   }
@@ -128,11 +137,11 @@ let Login = () => {
   const [password, setPassword] = useState("");
   const [err, setErr] = useState(false);
   const [loading, setloading] = useState(false);
+  const [forgotPassVisible, setforgotPassVisible] = useState(false);
 
   const router = useRouter();
 
   useEffect(() => {
-    // console.log("blac");
     if (
       localStorage.getItem("cookie") !== null &&
       localStorage.getItem("cookie") !== ""
@@ -153,44 +162,68 @@ let Login = () => {
   };
 
   let handleSubmit = (e) => {
+    e.preventDefault();
     setloading(true);
 
-    e.preventDefault();
-    console.log("clicked");
+    if (!forgotPassVisible) {
+      let myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
 
-    let myHeaders = new Headers();
-    myHeaders.append("Content-Type", "application/json");
+      let raw = JSON.stringify({
+        Email: email,
+        Password: password,
+        Token: uid(12),
+      });
 
-    let raw = JSON.stringify({
-      Email: email,
-      Password: password,
-      Token: uid(12),
-    });
+      let requestOptions = {
+        method: "POST",
+        headers: myHeaders,
+        body: raw,
+        redirect: "follow",
+      };
 
-    let requestOptions = {
-      method: "POST",
-      headers: myHeaders,
-      body: raw,
-      redirect: "follow",
-    };
+      fetch(
+        "https://easyviews.herokuapp.com/Api/v1/Account/Login",
+        requestOptions
+      )
+        .then((response) => response.json())
+        .then((result) => {
+          localStorage.setItem("cookie", result.Response);
+          let cookie = localStorage.getItem("cookie");
 
-    fetch(
-      "https://easyviews.herokuapp.com/Api/v1/Account/Login",
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        localStorage.setItem("cookie", result.Response);
-        let cookie = localStorage.getItem("cookie");
+          if (result.Error == 0) {
+            getProfileData(cookie);
+          } else {
+            setErr(true);
+            setloading(false);
+          }
+        })
+        .catch((error) => console.log("error", error));
+    } else {
+      var myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
 
-        if (result.Error == 0) {
-          getProfileData(cookie);
-        } else {
-          setErr(true);
-          setloading(false);
-        }
-      })
-      .catch((error) => console.log("error", error));
+      var raw = JSON.stringify({
+        Email: email,
+      });
+
+      var requestOptions = {
+        method: "POST",
+        headers: myHeaders,
+        body: raw,
+        redirect: "follow",
+      };
+
+      fetch(
+        "https://easyviews.herokuapp.com/Api/v1/Account/ForgotPassword/SendReset",
+        requestOptions
+      )
+        .then((response) => response.text())
+        .then((result) => {
+          console.log(result);
+        })
+        .catch((error) => console.log("error", error));
+    }
   };
 
   let getProfileData = (cookie) => {
@@ -233,6 +266,7 @@ let Login = () => {
           content="width=device-width,initial-scale=1.0"
         ></meta>
       </Head>
+
       <div className="greetings">
         <div className="img-container">
           <Image src={stars} alt="Stars" />
@@ -265,60 +299,99 @@ let Login = () => {
             },
           }}
         >
-          <div className="form">
-            <h2>Login</h2>
-            <p>We’re happy to see you back! Sign in to your account</p>
-
-            <form onSubmit={(e) => handleSubmit(e)}>
-              <label htmlFor="">
-                Email
-                <input
-                  type="text"
-                  placeholder="Enter email"
-                  value={email}
-                  onChange={(e) => handleEmailChange(e)}
-                  required
-                />
-              </label>
-
-              <label htmlFor="" className="password">
-                Password
-                <input
-                  type="password"
-                  placeholder="Enter password"
-                  value={password}
-                  onChange={(e) => handlePassChange(e)}
-                  required
-                />
-              </label>
-
-              <p className="forgotPass">
-                <a href="">Forgot Password</a>
-              </p>
-
-              {err && <p>Incorrect email or password</p>}
-              <div className="submit">
-                {loading ? (
-                  <div className="spinner">
-                    <Image src={spinner} />
-                  </div>
-                ) : (
+          {!forgotPassVisible && (
+            <div className="form">
+              <h2>Login</h2>
+              <p>We’re happy to see you back! Sign in to your account</p>
+              <form onSubmit={(e) => handleSubmit(e)}>
+                <label htmlFor="">
+                  Email
                   <input
-                    type="submit"
-                    // value={loading ? "Loading" : "Login"}
-                    // className="submit"
-                    value="Login"
+                    type="text"
+                    placeholder="Enter email"
+                    value={email}
+                    onChange={(e) => handleEmailChange(e)}
+                    required
                   />
-                )}
-              </div>
-            </form>
-            <p>
-              Dont have an account?{" "}
-              <Link href="/register">
-                <a>Sign up</a>
-              </Link>
-            </p>
-          </div>
+                </label>
+
+                <label htmlFor="" className="password">
+                  Password
+                  <input
+                    type="password"
+                    placeholder="Enter password"
+                    value={password}
+                    onChange={(e) => handlePassChange(e)}
+                    required
+                  />
+                </label>
+
+                <p
+                  className="forgotPass"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setforgotPassVisible(true);
+                  }}
+                >
+                  <a href="">Forgot Password</a>
+                </p>
+
+                {err && <p>Incorrect email or password</p>}
+                <div className="submit">
+                  {loading ? (
+                    <div className="spinner">
+                      <Image src={spinner} alt="loading" />
+                    </div>
+                  ) : (
+                    <input type="submit" value="Login" />
+                  )}
+                </div>
+              </form>
+              <p>
+                Dont have an account?{" "}
+                <Link href="/register">
+                  <a>Sign up</a>
+                </Link>
+              </p>
+            </div>
+          )}
+
+          {forgotPassVisible && (
+            <div className="form">
+              <h2>Forgot Password?</h2>
+              <p>
+                No worries! Enter your email and we will send you an email to
+                reset.{" "}
+              </p>
+              <form onSubmit={(e) => handleSubmit(e)}>
+                <label htmlFor="">
+                  Email
+                  <input
+                    type="text"
+                    placeholder="Enter email"
+                    value={email}
+                    onChange={(e) => handleEmailChange(e)}
+                    required
+                  />
+                </label>
+
+                {err && <p>Incorrect email or password</p>}
+                <div className="submit">
+                  {loading ? (
+                    <input type="submit" value="Sent!" />
+                  ) : (
+                    <input type="submit" value="Send" />
+                  )}
+                </div>
+              </form>
+              <p>
+                Dont have an account?{" "}
+                <Link href="/register">
+                  <a>Sign up</a>
+                </Link>
+              </p>
+            </div>
+          )}
         </motion.div>
       </div>
     </Div>

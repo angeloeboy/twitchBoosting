@@ -1,7 +1,7 @@
 import Nav from "../Components/Nav";
 import styled from "styled-components";
-import { useState } from "react";
-import { Head } from "next/head";
+import { useState, useEffect } from "react";
+import Head from "next/head";
 
 const PricingPage = styled.section`
   background: #192377;
@@ -190,6 +190,60 @@ const Prices = () => {
 
   const [freqChoice, setFreChoice] = useState("weekly");
 
+  const [loaded, setLoaded] = useState(false);
+  const [plans, setPlans] = useState([]);
+
+  const [planDisplay, setplanDisplay] = useState([]);
+
+  useEffect(() => {
+    getPlans();
+  }, []);
+
+  useEffect(() => {
+    if (plans.length > 0) {
+      let plan;
+      let final;
+
+      if (viewersClicked) {
+        plan = plans.filter((plan) => {
+          return plan.ServiceType === "ViewBot";
+        });
+      } else if (chattersClicked) {
+        plan = plans.filter((plan) => {
+          return plan.ServiceType === "ChatBot";
+        });
+      } else {
+        plan = plans.filter((plan) => {
+          return plan.ServiceType === "FollowBot";
+        });
+      }
+
+      console.log(plan);
+
+      if (weeklyClicked) {
+        final = plan.filter((plan) => {
+          return plan.Duration == 7;
+        });
+      } else {
+        final = plan.filter((plan) => {
+          return plan.Duration == 30;
+        });
+      }
+
+      console.log(final);
+
+      setplanDisplay(final);
+    }
+  }, [
+    viewersClicked,
+    chattersClicked,
+    followersClicked,
+    weeklyClicked,
+    monthlyClicked,
+    plans,
+    loaded,
+  ]);
+
   let serviceBtnClicked = (e) => {
     e.preventDefault();
     let choice = e.target.value;
@@ -230,24 +284,43 @@ const Prices = () => {
     }
   };
 
+  let getPlans = () => {
+    var requestOptions = {
+      method: "GET",
+      redirect: "follow",
+    };
+
+    fetch(
+      "https://easyviews.herokuapp.com/Api/V1/GetSubscriptions",
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        setPlans(result.Response);
+        setLoaded(true);
+      })
+      .catch((error) => console.log("error", error));
+  };
+
   return (
     <>
+      <Head>
+        <title>Easyviews | Pricing</title>
+        <meta
+          name="description"
+          content="We have flexible pricing plans for you! "
+        ></meta>
+        <meta property="og:title" content="Easyviews | Pricing" />
+        <meta property="og:type" content="website" />
+        <meta
+          name="viewport"
+          content="width=device-width,initial-scale=1.0"
+        ></meta>
+      </Head>
+
       <Nav />
 
       <PricingPage>
-        <Head>
-          <title>Easyviews | Pricing</title>
-          <meta
-            name="description"
-            content="We have flexible pricing plans for you! "
-          ></meta>
-          <meta property="og:title" content="Easyviews | Pricing" />
-          <meta property="og:type" content="website" />
-          <meta
-            name="viewport"
-            content="width=device-width,initial-scale=1.0"
-          ></meta>
-        </Head>
         <div className="container">
           <h1 className="title">Pricing</h1>
           <p className="subtitle">No contracts. No surprise fees.</p>
@@ -300,22 +373,31 @@ const Prices = () => {
               <p className="description-text">{priceChoice.Description}</p>
             </div>
             <div className="pricing-prices">
-              {prices.map((price) => {
-                return (
-                  // eslint-disable-next-line react/jsx-key
-                  <div className="individual-price">
-                    <div>
-                      <p>Intro</p>
-                      <p className="price">
-                        {price.Price} <span>/ {freqChoice} </span>{" "}
+              {loaded &&
+                planDisplay.map((price) => {
+                  return (
+                    // eslint-disable-next-line react/jsx-key
+                    <div className="individual-price" key={price.index}>
+                      <div>
+                        <p>{price.Name}</p>
+                        <p className="price">
+                          {price.Cost} <span>/ {freqChoice} </span>{" "}
+                        </p>
+                      </div>
+                      <p className="amount">
+                        {price.ServiceType === "FollowBot" && (
+                          <>
+                            <p>
+                              {" "}
+                              {price.FollowersRequested} {priceChoice.Choice}
+                            </p>
+                          </>
+                        )}
                       </p>
                     </div>
-                    <p className="amount">
-                      {price.Amount} {priceChoice.Choice}
-                    </p>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              {/* {} */}
             </div>
           </div>
         </div>

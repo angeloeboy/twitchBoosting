@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/link-passhref */
 import styled from "styled-components";
 import Link from "next/link";
 import Image from "next/image";
@@ -141,7 +142,9 @@ const Nav = () => {
     <Navigation pos={pos}>
       <div className="container">
         <div className="logo-container">
-          <Image src={logo} alt="Easyviews Logo" />
+          <Link href={"/"}>
+            <Image src={logo} alt="Easyviews Logo" />
+          </Link>
         </div>
         <Linksbtn className="links-btn" isclicked={isclicked}>
           <div className="links">

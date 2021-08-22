@@ -78,10 +78,13 @@ const Div = styled.div`
 
   .plans-container {
     margin-top: 13px;
-
     display: flex;
-    justify-content: space-between;
+    /* justify-content: space-between; */
     flex-wrap: wrap;
+
+    @media (max-width: 1200px) {
+      justify-content: center;
+    }
   }
 `;
 
@@ -94,7 +97,7 @@ const Plan = styled.div`
   max-width: 330px;
   min-width: 278px;
   margin-top: 37px;
-
+  margin-right: 20px;
   .number {
     font-weight: bold;
     font-size: 60px;
@@ -234,7 +237,13 @@ let Plans = () => {
                   <h3 className="number">{plan.FollowersRequested}</h3>
                   <p className="typeOfService">{plan.ServiceType}</p>
                   <p className="price">
-                    ${plan.Cost}/{frequency}
+                    {plan.ServiceType == "FollowBot" ? (
+                      <>${plan.Cost}</>
+                    ) : (
+                      <>
+                        ${plan.Cost}/{frequency}
+                      </>
+                    )}
                   </p>
                   <button onClick={() => setisBuyVisible(!isBuyVisible)}>
                     Purchase

@@ -3,12 +3,12 @@ import { useEffect, useState, useContext } from "react";
 import { MenuContext } from "../menuContext";
 
 let Div = styled.div`
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
   width: 100vw;
   height: 100vh;
-  background-color: rgba(0, 0, 0, 0.7);
+  background-color: rgba(0, 0, 0, 0.185);
 
   .outer {
     width: 100%;
@@ -16,6 +16,7 @@ let Div = styled.div`
     background-color: green;
     padding: 5%;
   }
+
   .inner {
     position: absolute;
     top: 50%;

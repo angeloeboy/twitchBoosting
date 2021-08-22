@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import Image from "next/image";
 import icon1 from "../../Images/pricing-stars.png";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 
 const Div = styled.div`
@@ -129,8 +129,44 @@ const Div = styled.div`
 `;
 const Pricing = () => {
   let prices = ["50", "100", "150", "200"];
-
+  const [plans, setplans] = useState([]);
+  const [loaded, setloaded] = useState(false);
   const [productPrices, setproductPrices] = useState("");
+
+  useEffect(() => {
+    getPlans();
+  }, []);
+
+  useEffect(() => {
+    if (plans.length > 0) {
+      console.log(plans);
+      setloaded(true);
+    }
+  }, [plans]);
+
+  let getPlans = () => {
+    var requestOptions = {
+      method: "GET",
+      redirect: "follow",
+    };
+
+    fetch(
+      "https://easyviews.herokuapp.com/Api/V1/GetSubscriptions",
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        let arr = result.Response.filter((plan) => {
+          return plan.ServiceType === "ViewBot";
+        });
+
+        // console.log(arr);
+
+        setplans(arr);
+      })
+      .catch((error) => console.log("error", error));
+  };
+
   return (
     <Div>
       <div className="container">
@@ -145,16 +181,25 @@ const Pricing = () => {
 
         <div className="prices">
           <div className="pricing-container">
-            {prices.map((price) => {
-              return (
-                // eslint-disable-next-line react/jsx-key
-                <div className="price" key={price}>
-                  <h3>{price}</h3>
-                  <p className="viewers">Viewers</p>
-                  <p className="per">50$/week</p>
-                </div>
-              );
-            })}
+            {loaded &&
+              plans.map((plan) => {
+                return (
+                  // eslint-disable-next-line react/jsx-key
+                  <div className="price">
+                    <h3>20</h3>
+                    <p className="viewers">Viewers</p>
+                    <p className="per">
+                      {plan.Cost} / {plan.Duration === 7 ? "Weekly" : "Monthly"}
+                    </p>
+                  </div>
+                );
+              })}
+
+            {!loaded && (
+              <>
+                <p>Loading...</p>
+              </>
+            )}
           </div>
           <Link href="/login" passHref>
             <button>Login to see more </button>

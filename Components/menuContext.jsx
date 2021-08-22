@@ -33,6 +33,7 @@ export const MenuProvider = (props) => {
   useEffect(() => {
     let data = localStorage.getItem("userObject");
     setProfileData(JSON.parse(data));
+    console.log("Menu context");
   }, []);
 
   return (
