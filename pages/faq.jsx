@@ -3,6 +3,7 @@ import arrow from "../Images/arrow.png";
 import Image from "next/image";
 import { useState } from "react";
 import Nav from "./../Components/Nav";
+import Head from "next/head";
 
 const FaqPage = styled.section`
   min-height: 100vh;
@@ -200,6 +201,19 @@ const Faq = () => {
       <Nav />
 
       <FaqPage>
+        <Head>
+          <title>Easyviews | Faq</title>
+          <meta
+            name="description"
+            content="Have a question? Read our frequently asked question."
+          ></meta>
+          <meta property="og:title" content="Easyviews | Faq" />
+          <meta property="og:type" content="website" />
+          <meta
+            name="viewport"
+            content="width=device-width,initial-scale=1.0"
+          ></meta>
+        </Head>
         <div className="container">
           <h1 className="title">Faq</h1>
           <p className="subtitle">

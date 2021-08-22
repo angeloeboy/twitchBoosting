@@ -1,6 +1,7 @@
 import Nav from "../Components/Nav";
 import styled from "styled-components";
 import { useState } from "react";
+import { Head } from "next/head";
 
 const PricingPage = styled.section`
   background: #192377;
@@ -234,6 +235,19 @@ const Prices = () => {
       <Nav />
 
       <PricingPage>
+        <Head>
+          <title>Easyviews | Pricing</title>
+          <meta
+            name="description"
+            content="We have flexible pricing plans for you! "
+          ></meta>
+          <meta property="og:title" content="Easyviews | Pricing" />
+          <meta property="og:type" content="website" />
+          <meta
+            name="viewport"
+            content="width=device-width,initial-scale=1.0"
+          ></meta>
+        </Head>
         <div className="container">
           <h1 className="title">Pricing</h1>
           <p className="subtitle">No contracts. No surprise fees.</p>
