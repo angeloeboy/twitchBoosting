@@ -5,6 +5,8 @@ import Image from "next/image";
 import menu from "../Images/menu.svg";
 import { useEffect, useState } from "react";
 
+import logo from "../Images/logo.png";
+
 const Navigation = styled.nav`
   position: fixed;
   width: 100%;
@@ -26,6 +28,12 @@ const Navigation = styled.nav`
 
     .menu {
       display: none;
+    }
+
+    .logo-container {
+      width: 80px;
+
+      display: grid;
     }
 
     @media (max-width: 1064px) {
@@ -65,6 +73,7 @@ const Linksbtn = styled.div`
       border: 2px solid #203298;
       font-weight: 300;
       border-radius: 5px;
+      cursor: pointer;
     }
 
     .login {
@@ -131,7 +140,9 @@ const Nav = () => {
   return (
     <Navigation pos={pos}>
       <div className="container">
-        <div className="logo-container"> LOGO</div>
+        <div className="logo-container">
+          <Image src={logo} alt="Easyviews Logo" />
+        </div>
         <Linksbtn className="links-btn" isclicked={isclicked}>
           <div className="links">
             <ul>

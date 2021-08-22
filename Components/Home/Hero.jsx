@@ -42,6 +42,11 @@ const Div = styled.div`
         color: white;
         font-weight: 300;
         font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        &:hover {
+          background-color: #fd9a01;
+        }
       }
     }
 

@@ -1,6 +1,8 @@
 import styled from "styled-components";
 import Image from "next/image";
 import icon1 from "../../Images/pricing-stars.png";
+import { useState } from "react";
+import Link from "next/link";
 
 const Div = styled.div`
   background-color: #f9faff;
@@ -91,6 +93,11 @@ const Div = styled.div`
         margin-top: 49px;
         float: right;
         border-radius: 5px;
+        transition: all 0.3 ease;
+        cursor: pointer;
+        &:hover {
+          background-color: #fd7201;
+        }
       }
     }
 
@@ -123,6 +130,7 @@ const Div = styled.div`
 const Pricing = () => {
   let prices = ["50", "100", "150", "200"];
 
+  const [productPrices, setproductPrices] = useState("");
   return (
     <Div>
       <div className="container">
@@ -150,7 +158,9 @@ const Pricing = () => {
               );
             })}
           </div>
-          <button>Login to see more </button>
+          <Link href="/login" passHref>
+            <button>Login to see more </button>
+          </Link>
         </div>
       </div>
     </Div>

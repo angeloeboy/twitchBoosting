@@ -115,6 +115,8 @@ const Question = styled.div`
     margin-top: 37px;
     font-size: 14px;
     width: 80%;
+    /* font-family: "Roboto", sans-serif; */
+    /* letter-spacing: 2px; */
   }
 
   .hidden {

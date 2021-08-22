@@ -8,6 +8,7 @@ import { uid, suid } from "rand-token";
 import { useRouter } from "next/router";
 import spinner from "../Images/spinner.gif";
 import { motion } from "framer-motion";
+import Head from "next/head";
 
 const Div = styled.div`
   display: flex;
@@ -131,10 +132,15 @@ let Login = () => {
   const router = useRouter();
 
   useEffect(() => {
-    if (localStorage.getItem("cookie") !== null) {
+    // console.log("blac");
+    if (
+      localStorage.getItem("cookie") !== null &&
+      localStorage.getItem("cookie") !== ""
+    ) {
       let cookie = localStorage.getItem("cookie");
       getProfileData(cookie);
       setloading(true);
+      console.log(localStorage.getItem("cookie") !== "");
     }
   }, []);
 
@@ -213,37 +219,52 @@ let Login = () => {
   };
 
   return (
-    <motion.div
-      initial="hidden"
-      animate="visible"
-      variants={{
-        hidden: {
-          opacity: 0,
-        },
-        visible: {
-          opacity: 1,
-          transition: {
-            delay: 0.2,
-          },
-        },
-      }}
-    >
-      <Div>
-        <div className="greetings">
-          <div className="img-container">
-            <Image src={stars} alt="Stars" />
-          </div>
-          <div className="texts">
-            <h1>Welcome Back!</h1>
-            <p>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vitae
-              lacus, nulla mauris vel. Purus lacus ut nullam rhoncus. Proin a ut
-              sit tempus libero. Convallis volutpat nunc urna, eu ornare.
-            </p>
-          </div>
+    <Div>
+      <Head>
+        <title>Easyviews | Login</title>
+        <meta name="description" content="Login to Easyviews "></meta>
+        <meta
+          property="og:title"
+          content="Easyviews | Boost your Twitch Channel"
+        />
+        <meta property="og:type" content="website" />
+        <meta
+          name="viewport"
+          content="width=device-width,initial-scale=1.0"
+        ></meta>
+      </Head>
+      <div className="greetings">
+        <div className="img-container">
+          <Image src={stars} alt="Stars" />
         </div>
+        <div className="texts">
+          <h1>Welcome Back!</h1>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vitae
+            lacus, nulla mauris vel. Purus lacus ut nullam rhoncus. Proin a ut
+            sit tempus libero. Convallis volutpat nunc urna, eu ornare.
+          </p>
+        </div>
+      </div>
 
-        <div className="loginform">
+      <div className="loginform">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={{
+            hidden: {
+              opacity: 0,
+              transform: "translateX(100%)",
+            },
+            visible: {
+              opacity: 1,
+              transform: "translateX(0%)",
+              transition: {
+                delay: 0.2,
+              },
+            },
+          }}
+        >
           <div className="form">
             <h2>Login</h2>
             <p>We’re happy to see you back! Sign in to your account</p>
@@ -298,9 +319,9 @@ let Login = () => {
               </Link>
             </p>
           </div>
-        </div>
-      </Div>
-    </motion.div>
+        </motion.div>
+      </div>
+    </Div>
   );
 };
 

@@ -297,11 +297,18 @@ let Sidebar = (props) => {
 
   useEffect(() => {
     let clickedItem;
-    // if (router.pathname.includes("Admin")) {
-    //   clickedItem = router.pathname.replace("/dashboard/Admin", "");
-    // }
 
     clickedItem = router.pathname.replace("/dashboard/", "");
+
+    if (router.pathname.includes("Admin")) {
+      clickedItem = clickedItem.split("/")[0] + "/" + clickedItem.split("/")[1];
+      console.log(clickedItem);
+    } else {
+      clickedItem = clickedItem.split("/")[0];
+      console.log(clickedItem);
+    }
+    console.log(clickedItem);
+
     setselected(clickedItem);
   }, []);
 
@@ -328,12 +335,6 @@ let Sidebar = (props) => {
         setData(result.Response);
       })
       .catch((error) => console.log("error", error));
-  };
-
-  let getSelectedMenu = (value) => {
-    console.log(value);
-    setselected(value);
-    setIsMenuvisible(!isMenuVisible);
   };
 
   return (
@@ -378,7 +379,10 @@ let Sidebar = (props) => {
                           : { opacity: "0.2" }
                       }
                       value={item.name}
-                      onClick={() => getSelectedMenu(item.name)}
+                      onClick={() => {
+                        setselected(item.name);
+                        setIsMenuvisible(!isMenuVisible);
+                      }}
                     >
                       <div className="img">
                         <Image src={item.img} />
@@ -412,7 +416,10 @@ let Sidebar = (props) => {
                             : { opacity: "0.2" }
                         }
                         value={item.name}
-                        onClick={() => getSelectedMenu("Admin/" + item.name)}
+                        onClick={() => {
+                          setselected("Admin/" + item.name);
+                          setIsMenuvisible(!isMenuVisible);
+                        }}
                       >
                         <div className="img">
                           <Image src={item.img} />

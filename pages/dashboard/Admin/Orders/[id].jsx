@@ -290,7 +290,6 @@ let Order = () => {
       </div>
     );
   }
-
   return (
     <div>
       <OrderContainer online={orderDetails.Online}>

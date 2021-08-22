@@ -15,7 +15,6 @@ let Dashboard = () => {
 
   useEffect(() => {
     let cookie = localStorage.getItem("cookie");
-    setcookieFromLocal(cookie);
 
     router.push("/dashboard/Orders");
   }, []);

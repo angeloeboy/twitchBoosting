@@ -4,6 +4,7 @@ import styled from "styled-components";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
+import TopNotification from "./../../../Components/Dashboard/TopNotification";
 
 const OrderContainer = styled.div`
   .arrow {
@@ -276,7 +277,7 @@ let Order = () => {
     if (id != undefined) {
       getOrderData();
     }
-  }, [id, isOnline]);
+  }, [id, isOnline, updateSuccess]);
 
   //Check if the orderDetails is empty, then show/hide loading component
   useEffect(() => {
@@ -294,6 +295,12 @@ let Order = () => {
   useEffect(() => {
     checkChangedSettings();
   }, [maxDelay, minDelay, threads]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setupdateSuccess(false);
+    }, 1000);
+  }, [orderDetails]);
 
   let getOrderData = () => {
     let cookie = localStorage.getItem("cookie");
@@ -717,9 +724,9 @@ let Order = () => {
           </div>
 
           {updateSuccess && (
-            <div className="success">
-              <p className="message"> Settings successfully Changed! </p>
-            </div>
+            <>
+              <TopNotification text="Settings succesfully changed." />
+            </>
           )}
 
           <button

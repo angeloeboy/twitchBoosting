@@ -1,7 +1,7 @@
 import styled from "styled-components";
 import { useState, useEffect } from "react";
 import OrderForm from "../../Components/Dashboard/orderForm";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 
 const Div = styled.div`
   .header {
@@ -239,31 +239,33 @@ let Plans = () => {
                   <button onClick={() => setisBuyVisible(!isBuyVisible)}>
                     Purchase
                   </button>
-
-                  {isBuyVisible && (
-                    <motion.div
-                      initial="hidden"
-                      animate="visible"
-                      variants={{
-                        hidden: {
-                          scale: 1,
-                          opacity: 0,
-                        },
-                        visible: {
-                          scale: 1,
-                          opacity: 1,
-                          transition: {
-                            delay: 0.4,
+                  <AnimatePresence>
+                    {isBuyVisible && (
+                      <motion.div
+                        initial="hidden"
+                        animate="visible"
+                        exit={{ opacity: 0 }}
+                        variants={{
+                          hidden: {
+                            scale: 1,
+                            opacity: 0,
                           },
-                        },
-                      }}
-                    >
-                      <OrderForm
-                        setisBuyVisible={setisBuyVisible}
-                        plan={plan}
-                      />
-                    </motion.div>
-                  )}
+                          visible: {
+                            scale: 1,
+                            opacity: 1,
+                            transition: {
+                              delay: 0.4,
+                            },
+                          },
+                        }}
+                      >
+                        <OrderForm
+                          setisBuyVisible={setisBuyVisible}
+                          plan={plan}
+                        />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </Plan>
               );
             } else {

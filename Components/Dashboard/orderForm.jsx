@@ -120,13 +120,15 @@ let OrderForm = (props) => {
 
         if (result.ErrorMessage != "") {
           seterror(true);
-
           setmessage(result.ErrorMessage);
         } else {
           seterror(false);
-
           setmessage(result.Response);
           updateProfileData();
+
+          setTimeout(() => {
+            props.setisBuyVisible(false);
+          }, 2000);
         }
       })
       .catch((error) => console.log("error", error));
