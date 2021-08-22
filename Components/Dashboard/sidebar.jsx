@@ -59,6 +59,21 @@ const SidebarDiv = styled.div`
         margin-top: 5px;
       }
     }
+
+    .logout {
+      background-color: transparent;
+      color: white;
+      width: 100%;
+      padding: 5px;
+      margin-top: 20px;
+      border: 1px solid white;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background-color: white;
+        color: black;
+      }
+    }
   }
 
   .menu {
@@ -324,30 +339,30 @@ let Sidebar = (props) => {
     setselected(clickedItem);
   }, []);
 
-  let getProfileData = () => {
-    let cookie = localStorage.getItem("cookie");
+  // let getProfileData = () => {
+  //   let cookie = localStorage.getItem("cookie");
 
-    var myHeaders = new Headers();
-    myHeaders.append("x-api-key", cookie);
+  //   var myHeaders = new Headers();
+  //   myHeaders.append("x-api-key", cookie);
 
-    var requestOptions = {
-      method: "GET",
-      headers: myHeaders,
-      redirect: "follow",
-    };
+  //   var requestOptions = {
+  //     method: "GET",
+  //     headers: myHeaders,
+  //     redirect: "follow",
+  //   };
 
-    fetch(
-      "https://easyviews.herokuapp.com/Api/v1/Users/Account/Profile",
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        localStorage.setItem("userObject", JSON.stringify(result.Response));
-        setloaded(true);
-        setData(result.Response);
-      })
-      .catch((error) => console.log("error", error));
-  };
+  //   fetch(
+  //     "https://easyviews.herokuapp.com/Api/v1/Users/Account/Profile",
+  //     requestOptions
+  //   )
+  //     .then((response) => response.json())
+  //     .then((result) => {
+  //       localStorage.setItem("userObject", JSON.stringify(result.Response));
+  //       setloaded(true);
+  //       setData(result.Response);
+  //     })
+  //     .catch((error) => console.log("error", error));
+  // };
 
   let sendVerification = () => {
     let cookie = localStorage.getItem("cookie");
@@ -404,15 +419,18 @@ let Sidebar = (props) => {
           {/* <p className="account-name">{userData.Email}</p> */}
           <p> Type: {userData.AccountType}</p>
           <p>Credits: {userData.Credits}</p>
-          <p
+          <button
             onClick={() => {
-              localStorage.clear();
-              sessionStorage.clear();
-              props.setlogout(true);
+              setTimeout(() => {
+                localStorage.clear();
+                sessionStorage.clear();
+                props.setlogout(true);
+              }, 2000);
             }}
+            className="logout"
           >
-            Logout
-          </p>
+            <p>Logout</p>
+          </button>
         </div>
 
         <div className="menu">
