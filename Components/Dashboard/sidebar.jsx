@@ -322,7 +322,6 @@ let Sidebar = (props) => {
   const [isNotVerifiedVisible, setisNotVerifiedVisible] = useState(true);
   useEffect(() => {
     setuserData(JSON.parse(localStorage.getItem("userObject")));
-    console.log("sidebar");
   }, [data]);
 
   useEffect(() => {

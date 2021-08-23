@@ -95,8 +95,6 @@ let MainDashboard = ({ children }) => {
     } else {
       setvisible(true);
     }
-
-    console.log("Main dashboard");
   }, [logout]);
 
   if (visible) {

@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import TopNotification from "./../../../Components/Dashboard/TopNotification";
+import OrderLog from "./../../../Components/Dashboard/OrderLog";
 
 const OrderContainer = styled.div`
   .arrow {
@@ -201,8 +202,26 @@ const OrderContainer = styled.div`
         }
       }
 
+      .messagelist {
+        input {
+          width: 100%;
+          background-color: transparent;
+          border: 2px solid #1b1b1b;
+          color: white;
+          padding: 10px;
+          border-radius: 6px;
+          display: block;
+          margin-top: 20px;
+        }
+
+        .format {
+          font-size: 13px;
+          color: #696969;
+          margin-top: 10px;
+        }
+      }
+
       @media (max-width: 930px) {
-        /* grid-template-columns: 1fr 1fr 1fr 1fr; */
         display: block;
         div {
           margin-bottom: 20px;
@@ -272,6 +291,7 @@ let Order = () => {
   //check if the user changed something
   const [settingsChanged, setsettingsChanged] = useState(false);
 
+  const [messageListLink, setmessageListLink] = useState("");
   //Get the order data of individual orders based on the link
   useEffect(() => {
     if (id != undefined) {
@@ -288,13 +308,16 @@ let Order = () => {
       setmaxDelay(orderDetails.MaximumDelay);
       setminDelay(orderDetails.MinimumDelay);
       setthreads(orderDetails.Threads);
+
+      if (orderDetails.ServiceType === "ChatBot") {
+        setmessageListLink(orderDetails.ChatBotMessageList);
+      }
     }
-    console.log(orderDetails);
   }, [orderDetails]);
 
   useEffect(() => {
     checkChangedSettings();
-  }, [maxDelay, minDelay, threads]);
+  }, [maxDelay, minDelay, threads, messageListLink]);
 
   useEffect(() => {
     setTimeout(() => {
@@ -320,8 +343,18 @@ let Order = () => {
     )
       .then((response) => response.json())
       .then((result) => {
-        console.log(result.Response);
-        setorderDetails(result.Response);
+        let order = result.Response;
+        console.log(order);
+        if (order.ServiceType === "ChatBot") {
+          if (order.ChatBotMessageList != undefined) {
+            setorderDetails(result.Response);
+          } else {
+            order.ChatBotMessageList = "";
+            setorderDetails(order);
+          }
+        } else {
+          setorderDetails(result.Response);
+        }
       })
       .catch((error) => console.log("error", error));
   };
@@ -364,10 +397,14 @@ let Order = () => {
   };
 
   let checkChangedSettings = () => {
+    const regEx = new RegExp("^https://pastebin.com/raw/[a-zA-Z0-9_]{6,11}$");
+
     if (
       maxDelay != orderDetails.MaximumDelay ||
       minDelay != orderDetails.MinimumDelay ||
-      threads != orderDetails.Threads
+      threads != orderDetails.Threads ||
+      (messageListLink != orderDetails.ChatBotMessageList &&
+        regEx.test(messageListLink))
     ) {
       setsettingsChanged(true);
     } else {
@@ -398,6 +435,17 @@ let Order = () => {
     setupdateSuccess(false);
   };
 
+  let handleMessageList = (e) => {
+    let message = e.target.value;
+
+    setmessageListLink(message);
+    checkChangedSettings();
+    setupdateSuccess(false);
+    // const regEx = new RegExp("^https://pastebin.com/raw/[a-zA-Z0-9_]{6,11}$");
+
+    // console.log(regEx.test(messageListLink));
+  };
+
   let sendOrderConfig = () => {
     let cookie = localStorage.getItem("cookie");
 
@@ -406,12 +454,24 @@ let Order = () => {
     myHeaders.append("Content-Type", "application/json");
 
     let raw;
+
     if (typeof orderDetails.Threads != "undefined") {
-      raw = JSON.stringify({
-        Threads: threads,
-        MinimumDelay: minDelay,
-        MaximumDelay: maxDelay,
-      });
+      if (orderDetails.ServiceType == "ChatBot") {
+        raw = JSON.stringify({
+          Threads: threads,
+          MinimumDelay: minDelay,
+          MaximumDelay: maxDelay,
+          ChatBotMessageList: messageListLink,
+        });
+
+        console.log(raw);
+      } else {
+        raw = JSON.stringify({
+          Threads: threads,
+          MinimumDelay: minDelay,
+          MaximumDelay: maxDelay,
+        });
+      }
     } else {
       raw = JSON.stringify({
         MinimumDelay: minDelay,
@@ -581,15 +641,6 @@ let Order = () => {
                 </motion.div>
               )}
             </AnimatePresence>
-
-            <button
-              className="save"
-              onClick={() => sendOrderConfig()}
-              style={settingsChanged ? { opacity: "1" } : { opacity: "0" }}
-            >
-              {" "}
-              Save{" "}
-            </button>
           </div>
         </OrderContainer>
       </div>
@@ -705,7 +756,6 @@ let Order = () => {
                 ) : (
                   <p>{orderDetails.EndDate.slice(0, 10)}</p>
                 )}
-                {/* <p>{orderDetails.EndDate.slice(0, 10)}</p> */}
               </div>
             </div>
 
@@ -719,6 +769,21 @@ let Order = () => {
                   <p>Followers Requested</p>
                   <p className="num">{orderDetails.FollowersRequested}</p>
                 </div>
+              </div>
+            )}
+
+            {orderDetails.ServiceType === "ChatBot" && (
+              <div className="box messagelist">
+                <label>Message List: </label>
+
+                <input
+                  type="text"
+                  value={messageListLink}
+                  onChange={(e) => handleMessageList(e)}
+                />
+                <p className="format">
+                  Format: https://pastebin.com/raw/123456
+                </p>
               </div>
             )}
           </div>
@@ -739,6 +804,8 @@ let Order = () => {
           </button>
         </div>
       </OrderContainer>
+
+      <OrderLog Log={orderDetails.Log} />
     </div>
   );
 };
