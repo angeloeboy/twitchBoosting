@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState } from "react";
 import Nav from "./../Components/Nav";
 import Head from "next/head";
+import Footer from "./../Components/Home/Footer";
 
 const FaqPage = styled.section`
   min-height: 100vh;
@@ -262,6 +263,7 @@ const Faq = () => {
           </div>
         </div>
       </FaqPage>
+      <Footer />
     </>
   );
 };

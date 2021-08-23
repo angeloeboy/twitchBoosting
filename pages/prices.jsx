@@ -2,6 +2,7 @@ import Nav from "../Components/Nav";
 import styled from "styled-components";
 import { useState, useEffect } from "react";
 import Head from "next/head";
+import Footer from "./../Components/Home/Footer";
 
 const PricingPage = styled.section`
   background: #192377;
@@ -402,6 +403,7 @@ const Prices = () => {
           </div>
         </div>
       </PricingPage>
+      <Footer />
     </>
   );
 };
