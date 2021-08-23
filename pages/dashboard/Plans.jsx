@@ -168,6 +168,7 @@ let Plans = () => {
       .then((response) => response.json())
       .then((result) => {
         setPlans(result.Response);
+        console.log(result.Response);
       })
       .catch((error) => console.log("error", error));
   };
@@ -234,8 +235,13 @@ let Plans = () => {
             if (plan.ServiceType == prodChoice && freq == plan.Duration) {
               return (
                 <Plan key={plan.Name}>
-                  <h3 className="number">{plan.FollowersRequested}</h3>
-                  <p className="typeOfService">{plan.ServiceType}</p>
+                  <p className="typeOfService">{plan.Name}</p>
+
+                  <h3 className="number">
+                    {plan.ServiceType !== "FollowBot"
+                      ? plan.MaximumThreads
+                      : plan.FollowersRequested}
+                  </h3>
                   <p className="price">
                     {plan.ServiceType == "FollowBot" ? (
                       <>${plan.Cost}</>
@@ -245,9 +251,11 @@ let Plans = () => {
                       </>
                     )}
                   </p>
+
                   <button onClick={() => setisBuyVisible(!isBuyVisible)}>
                     Purchase
                   </button>
+
                   <AnimatePresence>
                     {isBuyVisible && (
                       <motion.div
