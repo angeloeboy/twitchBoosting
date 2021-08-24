@@ -45,42 +45,28 @@ const Div = styled.div`
     }
 
     .prices {
-      width: 80%;
+      width: 70%;
       margin-left: 30px;
       .pricing-container {
         color: black;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        grid-template-rows: 1fr 1fr;
-        text-align: center;
-        grid-gap: 22px;
+        display: flex;
+        flex-flow: column;
+
         .price {
-          padding: 84px 0px;
+          padding: 25px;
           background: #fdfdff;
           box-shadow: 0px 4px 14px 2px rgba(0, 0, 0, 0.25);
-          border-top: 8px solid #192377;
+          border-top: 5px solid #192377;
           transition: all 0.2s ease;
           width: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-top: 20px;
+          border-radius: 5px;
+
           h3 {
-            font-size: 50px;
-          }
-
-          .viewers {
-            font-weight: bold;
-            font-size: 18px;
-            text-transform: uppercase;
-          }
-
-          .per {
-            font-weight: 200;
-            margin-top: 8px;
-          }
-
-          &:hover {
-            background-color: #192377;
-            color: white;
-            transform: scale(1.02);
-            border-top-color: #ffffff;
+            font-size: 30px;
           }
         }
       }
@@ -120,52 +106,68 @@ const Div = styled.div`
         margin-top: 50px;
 
         .pricing-container {
-          grid-template-columns: 1fr;
-          grid-template-rows: 1fr 1fr 1fr 1fr;
+          .price {
+            flex-flow: column;
+          }
         }
       }
     }
   }
 `;
 const Pricing = () => {
-  let prices = ["50", "100", "150", "200"];
-  const [plans, setplans] = useState([]);
+  // let prices = ["50", "100", "150", "200"];
+  // const [plans, setplans] = useState([]);
   const [loaded, setloaded] = useState(false);
   const [productPrices, setproductPrices] = useState("");
 
-  useEffect(() => {
-    getPlans();
-  }, []);
+  // useEffect(() => {
+  //   getPlans();
+  // }, []);
 
-  useEffect(() => {
-    if (plans.length > 0) {
-      console.log(plans);
-      setloaded(true);
-    }
-  }, [plans]);
+  // useEffect(() => {
+  //   if (plans.length > 0) {
+  //     console.log(plans);
+  //     setloaded(true);
+  //   }
+  // }, [plans]);
 
-  let getPlans = () => {
-    var requestOptions = {
-      method: "GET",
-      redirect: "follow",
-    };
+  // let getPlans = () => {
+  //   var requestOptions = {
+  //     method: "GET",
+  //     redirect: "follow",
+  //   };
 
-    fetch(
-      "https://easyviews.herokuapp.com/Api/V1/GetSubscriptions",
-      requestOptions
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        let arr = result.Response.filter((plan) => {
-          return plan.ServiceType === "ViewBot";
-        });
+  //   fetch(
+  //     "https://easyviews.herokuapp.com/Api/V1/GetSubscriptions",
+  //     requestOptions
+  //   )
+  //     .then((response) => response.json())
+  //     .then((result) => {
+  //       let arr = result.Response.filter((plan) => {
+  //         return plan.ServiceType === "ViewBot";
+  //       });
 
-        // console.log(arr);
+  //       // console.log(arr);
 
-        setplans(arr);
-      })
-      .catch((error) => console.log("error", error));
-  };
+  //       setplans(arr);
+  //     })
+  //     .catch((error) => console.log("error", error));
+  // };
+
+  let plans = [
+    {
+      Name: "Viewers",
+      Cost: 15,
+    },
+    {
+      Name: "Chatters",
+      Cost: 15,
+    },
+    {
+      Name: "Followers",
+      Cost: 15,
+    },
+  ];
 
   return (
     <Div>
@@ -181,28 +183,18 @@ const Pricing = () => {
 
         <div className="prices">
           <div className="pricing-container">
-            {loaded &&
-              plans.map((plan) => {
-                return (
-                  // eslint-disable-next-line react/jsx-key
-                  <div className="price">
-                    <h3>20</h3>
-                    <p className="viewers">Viewers</p>
-                    <p className="per">
-                      {plan.Cost} / {plan.Duration === 7 ? "Weekly" : "Monthly"}
-                    </p>
-                  </div>
-                );
-              })}
-
-            {!loaded && (
-              <>
-                <p>Loading...</p>
-              </>
-            )}
+            {plans.map((plan) => {
+              return (
+                // eslint-disable-next-line react/jsx-key
+                <div className="price">
+                  <h3>{plan.Name}</h3>
+                  <p className="cost">Starts at ${plan.Cost}</p>
+                </div>
+              );
+            })}
           </div>
-          <Link href="/login" passHref>
-            <button>Login to see more </button>
+          <Link href="/prices" passHref>
+            <button>View More </button>
           </Link>
         </div>
       </div>

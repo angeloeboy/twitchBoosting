@@ -3,6 +3,8 @@ import styled from "styled-components";
 import { useState, useEffect } from "react";
 import Head from "next/head";
 import Footer from "./../Components/Home/Footer";
+import Link from "next/link";
+import { motion } from "framer-motion";
 
 const PricingPage = styled.section`
   background: #192377;
@@ -37,6 +39,7 @@ const PricingPage = styled.section`
         color: white;
         background-color: transparent;
         transition: all 0.3s ease;
+        cursor: pointer;
         &:hover {
           background-color: #203298;
         }
@@ -86,6 +89,7 @@ const PricingPage = styled.section`
           align-items: center;
           box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
           transition: all 0.4s ease;
+          cursor: pointer;
 
           &:hover {
             background-color: #18215f;
@@ -367,7 +371,24 @@ const Prices = () => {
               Monthly
             </button>
           </div>
+          {/* <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={{
+              hidden: {
+                opacity: 0,
+                position: "absolute",
+                top: "-50%",
+                width: "100%",
+              },
+              visible: {
+                opacity: 1,
+                top: "0",
 
+                position: "static",
+              },
+            }}
+          > */}
           <div className="price-section">
             <div className="description-tab">
               <h3 className="description-title">{priceChoice.Choice}</h3>
@@ -378,31 +399,35 @@ const Prices = () => {
                 planDisplay.map((price) => {
                   return (
                     // eslint-disable-next-line react/jsx-key
-                    <div className="individual-price" key={price.index}>
-                      <div>
-                        <p>{price.Name}</p>
-                        <p className="price">
-                          {price.Cost} <span>/ {freqChoice} </span>{" "}
+                    <Link href={"/dashboard/Plans"}>
+                      <div className="individual-price" key={price.index}>
+                        <div>
+                          <p>{price.Name}</p>
+                          <p className="price">
+                            {price.Cost} <span>/ {freqChoice} </span>{" "}
+                          </p>
+                        </div>
+                        <p className="amount">
+                          {price.ServiceType === "FollowBot" && (
+                            <>
+                              <p>
+                                {" "}
+                                {price.FollowersRequested} {priceChoice.Choice}
+                              </p>
+                            </>
+                          )}
                         </p>
                       </div>
-                      <p className="amount">
-                        {price.ServiceType === "FollowBot" && (
-                          <>
-                            <p>
-                              {" "}
-                              {price.FollowersRequested} {priceChoice.Choice}
-                            </p>
-                          </>
-                        )}
-                      </p>
-                    </div>
+                    </Link>
                   );
                 })}
               {/* {} */}
             </div>
           </div>
+          {/* </motion.div> */}
         </div>
       </PricingPage>
+
       <Footer />
     </>
   );
