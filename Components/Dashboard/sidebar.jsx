@@ -115,31 +115,23 @@ const SidebarDiv = styled.div`
   }
 
   .verify {
-    position: fixed;
-    width: 100vw;
-    top: 0;
-    left: 0px;
-    background-color: #ff5c5c60;
+    width: 100%;
     text-align: center;
     z-index: 999;
-    padding: 10px;
     transition: all 0.3s ease;
-    display: flex;
     justify-content: center;
     align-items: center;
-    &:hover {
-      background-color: #ff5c5c;
-    }
-    p {
-      margin-right: 20px;
-    }
+    margin-top: 10px;
+    font-size: 12px;
+
     button {
-      margin-left: 10px;
+      margin-top: 10px;
       padding: 10px;
       background-color: transparent;
       border: 1px solid white;
       color: white;
-
+      font-size: 12px;
+      width: 100%;
       &:hover {
         background-color: #ee3737;
       }
@@ -281,6 +273,11 @@ let Sidebar = (props) => {
       clicked: false,
       img: plansImg,
     },
+    {
+      name: "Payments",
+      clicked: false,
+      img: plansImg,
+    },
   ];
 
   let menuItemsAdmin = [
@@ -386,7 +383,7 @@ let Sidebar = (props) => {
 
   return (
     <SidebarDiv visible={isMenuVisible}>
-      {!userData.Verified && isNotVerifiedVisible && (
+      {/* {userData.Verified && isNotVerifiedVisible && (
         <div className="verify">
           <p>Your account is unverified</p>
           <button
@@ -400,7 +397,7 @@ let Sidebar = (props) => {
             Send Verification
           </button>
         </div>
-      )}
+      )} */}
 
       <div
         onClick={() => setIsMenuvisible(!isMenuVisible)}
@@ -430,6 +427,21 @@ let Sidebar = (props) => {
           >
             <p>Logout</p>
           </button>
+          {!userData.Verified && isNotVerifiedVisible && (
+            <div className="verify">
+              <p>Your account is unverified</p>
+              <button
+                onClick={() => {
+                  setTimeout(() => {
+                    setisNotVerifiedVisible(false);
+                  }, 1000);
+                  sendVerification();
+                }}
+              >
+                Send Verification
+              </button>
+            </div>
+          )}
         </div>
 
         <div className="menu">

@@ -7,6 +7,9 @@ import { uid, suid } from "rand-token";
 import { motion } from "framer-motion";
 import Head from "next/head";
 
+import loadingImg from "../Images/loading.gif";
+import { useRouter } from "next/router";
+
 const Div = styled.div`
   display: flex;
   .greetings {
@@ -77,13 +80,26 @@ const Div = styled.div`
 
         .submit {
           background-color: #192377;
-          color: white;
           font-weight: bold;
-          font-size: 16px;
           transition: all 0.4s ease;
-          margin-top: 48px;
+
           &:hover {
             background-color: #2332bd;
+          }
+
+          input {
+            color: white;
+            font-size: 16px;
+          }
+
+          .spinner {
+            width: 30px;
+            margin: 0 auto;
+            padding-top: 8px;
+            * {
+              margin: 0px;
+              padding: 0px;
+            }
           }
         }
 
@@ -115,62 +131,119 @@ const Div = styled.div`
 `;
 
 let Register = () => {
+  const router = useRouter();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPass, setrepeatPass] = useState("");
+
   const [passError, setpassError] = useState(false);
   const [emailError, setemailError] = useState(false);
-  const [regReady, setregReady] = useState();
+  const [regReady, setregReady] = useState(false);
   const [loaded, setloaded] = useState(false);
 
+  const [error, seterror] = useState("");
+  const [registerError, setregisterError] = useState(false);
+
+  const [loading, setloading] = useState(false);
+
+  const [registerSuccess, setregisterSuccess] = useState(false);
+
   useEffect(() => {
-    if (!emailError && !passError && loaded) {
-      setregReady(true);
+    setloading(false);
+  }, [registerError, error]);
 
-      if (regReady) {
-        let myHeaders = new Headers();
-        myHeaders.append("Content-Type", "application/json");
+  // useEffect(() => {
+  //   if (!emailError && !passError && loaded) {
+  //     // setregReady(true);
 
-        let raw = JSON.stringify({
-          Email: email,
-          Password: password,
-          Token: uid(12),
-        });
+  //     setloading(true);
 
-        let requestOptions = {
-          method: "POST",
-          headers: myHeaders,
-          body: raw,
-          redirect: "follow",
-        };
+  //     // if (regReady) {
+  //     let myHeaders = new Headers();
+  //     myHeaders.append("Content-Type", "application/json");
 
-        fetch(
-          "https://easyviews.herokuapp.com/Api/v1/Account/Register",
-          requestOptions
-        )
-          .then((response) => response.text())
-          .then((result) => console.log(result))
-          .catch((error) => console.log("error", error));
-      }
-    } else {
-      setregReady(false);
-    }
-  }, [emailError, passError, regReady, loaded]);
+  //     let raw = JSON.stringify({
+  //       Email: email,
+  //       Password: password,
+  //       Token: uid(12),
+  //     });
 
-  let handleEmailChange = (e) => {
-    setEmail(e.target.value);
-  };
+  //     let requestOptions = {
+  //       method: "POST",
+  //       headers: myHeaders,
+  //       body: raw,
+  //       redirect: "follow",
+  //     };
 
-  let handlePassChange = (e) => {
-    setPassword(e.target.value);
-  };
+  //     fetch(
+  //       "https://easyviews.herokuapp.com/Api/v1/Account/Register",
+  //       requestOptions
+  //     )
+  //       .then((response) => response.json())
+  //       .then((result) => {
+  //         console.log(result);
+  //         console.log(result.Error);
 
-  let handleRepeatPass = (e) => {
-    setrepeatPass(e.target.value);
-  };
+  //         if (result.Error > 0) {
+  //           seterror(result.ErrorMessage);
+  //           setregisterError(true);
+  //         }
+  //       })
+  //       .catch((error) => console.log("error", error));
+  //     // }
+  //   } else {
+  //     setregReady(false);
+  //   }
+  // }, [emailError, passError, regReady, loaded]);
+
+  // useEffect(() => {
+  //   if (regReady) {
+  //     console.log(regReady);
+  // setloading(true);
+  // let myHeaders = new Headers();
+  // myHeaders.append("Content-Type", "application/json");
+
+  // let raw = JSON.stringify({
+  //   Email: email,
+  //   Password: password,
+  //   Token: uid(12),
+  // });
+
+  // let requestOptions = {
+  //   method: "POST",
+  //   headers: myHeaders,
+  //   body: raw,
+  //   redirect: "follow",
+  // };
+
+  // fetch(
+  //   "https://easyviews.herokuapp.com/Api/v1/Account/Register",
+  //   requestOptions
+  // )
+  //   .then((response) => response.json())
+  //   .then((result) => {
+  //     console.log(result);
+  //     console.log(result.Error);
+
+  //     if (result.Error > 0) {
+  //       seterror(result.ErrorMessage);
+  //       setregisterError(true);
+  //       setregReady(false);
+  //     } else {
+  //       setloading(false);
+  //     }
+  //   })
+  //   .catch((error) => console.log("error", error));
+  //   }
+  // }, [regReady]);
 
   let handleSubmit = (e) => {
     e.preventDefault();
+    setloaded(true);
+    setpassError(false);
+    setemailError(false);
+    seterror(false);
 
     if (password != repeatPass) {
       setpassError(true);
@@ -183,8 +256,85 @@ let Register = () => {
     } else {
       setemailError(false);
     }
+  };
 
-    setloaded(true);
+  useEffect(() => {
+    if (loaded) {
+      if (!emailError && !passError) {
+        setregReady(true);
+      } else {
+        setregReady(false);
+      }
+      console.log("loaded");
+    }
+  }, [emailError, passError, loaded]);
+
+  useEffect(() => {
+    if (regReady && loaded) {
+      console.log(regReady);
+      setloading(true);
+
+      let myHeaders = new Headers();
+      myHeaders.append("Content-Type", "application/json");
+
+      let raw = JSON.stringify({
+        Email: email,
+        Password: password,
+        Token: uid(12),
+      });
+
+      let requestOptions = {
+        method: "POST",
+        headers: myHeaders,
+        body: raw,
+        redirect: "follow",
+      };
+
+      fetch(
+        "https://easyviews.herokuapp.com/Api/v1/Account/Register",
+        requestOptions
+      )
+        .then((response) => response.json())
+        .then((result) => {
+          console.log(result);
+          console.log(result.Error);
+
+          if (result.Error > 0) {
+            seterror(result.ErrorMessage);
+            setregisterError(true);
+            setloaded(false);
+            setregReady(false);
+          } else {
+            setloading(false);
+            seterror("");
+            console.log("you will be redirected to login");
+            setregisterSuccess(true);
+            sessionStorage.setItem("fromRegister", "true");
+
+            setTimeout(() => {
+              router.push("/login");
+            }, 3000);
+          }
+        })
+        .catch((error) => console.log("error", error));
+    } else {
+      setloading(false);
+    }
+  }, [regReady]);
+
+  let handleEmailChange = (e) => {
+    setEmail(e.target.value);
+    setloading(false);
+  };
+
+  let handlePassChange = (e) => {
+    setPassword(e.target.value);
+    setloading(false);
+  };
+
+  let handleRepeatPass = (e) => {
+    setrepeatPass(e.target.value);
+    setloading(false);
   };
 
   return (
@@ -271,14 +421,30 @@ let Register = () => {
                   onChange={(e) => handleRepeatPass(e)}
                 />
               </label>
+
               <p className="error">
                 {passError ? "Password doesn't match" : ""}
               </p>
+
               <p className="error">
                 {emailError ? "Please input a valid email" : ""}
               </p>
 
-              <input type="submit" value="Sign Up" className="submit" />
+              {registerSuccess && (
+                <p>Register Success! You will be redirected in login.</p>
+              )}
+
+              <p className="error">{error}</p>
+
+              <div className="submit">
+                {loading ? (
+                  <div className="spinner">
+                    <Image src={loadingImg} alt="loading" />
+                  </div>
+                ) : (
+                  <input type="submit" value="Sign up" />
+                )}
+              </div>
             </form>
             <p>
               Already have an account?{" "}

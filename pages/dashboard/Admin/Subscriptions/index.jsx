@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 import AddSubscriptionModal from "../../../../Components/Dashboard/Subscription/AddSubscriptionModal";
 import SubscriptonDescriptionModal from "./../../../../Components/Dashboard/Subscription/SubscriptonDescriptionModal";
+import { useRouter } from "next/router";
 
 const GiftCardsContainer = styled.div`
   /* position: relative; */
@@ -195,6 +196,9 @@ const GiftCard = styled.div`
 `;
 
 let Subscriptions = () => {
+  const router = useRouter();
+  const { page, search } = router.query;
+
   const [subscriptions, setSubscriptions] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -209,22 +213,21 @@ let Subscriptions = () => {
   const [deletedSubs, setdeletedSubs] = useState("");
   const [subsLength, setSubsLength] = useState(0);
 
+  //
   useEffect(() => {
-    getSubscriptions();
-  }, [deletedSubs, subsLength]);
-
-  useEffect(() => {
-    if (Object.keys(subscriptions).length != 0) {
-      let arr = [];
-
-      let result = subscriptions.filter((subscription) => {
-        return subscription._id.toLowerCase().includes(searchedSubscription);
-      });
-
-      console.log(result);
-      setSearchResult(result);
+    if (router.isReady && page !== undefined) {
+      getSubscriptions();
     }
-  }, [subscriptions, searchedSubscription]);
+  }, [page, search, deletedSubs, subsLength]);
+
+  useEffect(() => {
+    if (searchedSubscription != "") {
+      router.push("/dashboard/Admin/Subscriptions?search=true&page=1");
+      searchGiftcard();
+    } else {
+      router.push("/dashboard/Admin/Subscriptions?page=1");
+    }
+  }, [searchedSubscription, search]);
 
   let getSubscriptions = () => {
     let cookie = localStorage.getItem("cookie");
@@ -239,14 +242,16 @@ let Subscriptions = () => {
     };
 
     fetch(
-      "https://easyviews.herokuapp.com/Api/v1/Staff/Subscriptions/View",
+      "https://easyviews.herokuapp.com/Api/v1/Staff/Subscriptions/View?Page=" +
+        page,
       requestOptions
     )
       .then((response) => response.json())
       .then((result) => {
-        setSubscriptions(result.Response);
         if (result.Error == 0) {
+          console.log(page);
           setLoading(false);
+          setSubscriptions(result.Response);
         }
       })
       .catch((error) => console.log("error", error));
@@ -274,6 +279,33 @@ let Subscriptions = () => {
           setSubsData(result.Response);
           setgcVisible(true);
         }
+      })
+      .catch((error) => console.log("error", error));
+  };
+
+  let searchGiftcard = () => {
+    let cookie = localStorage.getItem("cookie");
+    setLoading(true);
+    var myHeaders = new Headers();
+    myHeaders.append("x-api-key", cookie);
+
+    var requestOptions = {
+      method: "GET",
+      headers: myHeaders,
+      redirect: "follow",
+    };
+
+    fetch(
+      "https://easyviews.herokuapp.com/Api/v1/Staff/Subscriptions/Search?SearchTerm=" +
+        searchedSubscription +
+        "&Page=" +
+        page,
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        setSubscriptions(result.Response);
+        setLoading(false);
       })
       .catch((error) => console.log("error", error));
   };
@@ -350,7 +382,7 @@ let Subscriptions = () => {
           </div>
 
           <div className="orders">
-            {searchResult.map((subscription) => {
+            {subscriptions.map((subscription) => {
               return (
                 <div
                   key={subscription.Name}
@@ -378,8 +410,6 @@ let Subscriptions = () => {
                     </GiftCard>
                   </motion.div>
                 </div>
-
-                // </Link>
               );
             })}
           </div>
@@ -407,6 +437,43 @@ let Subscriptions = () => {
             )}
           </AnimatePresence>
         </div>
+
+        <button
+          onClick={() => {
+            setLoading(true);
+
+            if (search) {
+              router.push(
+                "/dashboard/Admin/Subscriptions?search=true&page=" +
+                  (parseInt(page) - 1)
+              );
+            } else {
+              router.push(
+                "/dashboard/Admin/Subscriptions?page=" + (parseInt(page) - 1)
+              );
+            }
+          }}
+        >
+          Prev
+        </button>
+
+        <button
+          onClick={() => {
+            setLoading(true);
+            if (search) {
+              router.push(
+                "/dashboard/Admin/Subscriptions?search=true&page=" +
+                  (parseInt(page) + 1)
+              );
+            } else {
+              router.push(
+                "/dashboard/Admin/Subscriptions?page=" + (parseInt(page) + 1)
+              );
+            }
+          }}
+        >
+          next
+        </button>
       </GiftCardsContainer>
     );
   }

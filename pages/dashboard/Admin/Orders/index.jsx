@@ -10,6 +10,7 @@ import checkImg from "../../../../Images/check.svg";
 import xImg from "../../../../Images/x-image.svg";
 import { motion } from "framer-motion";
 import searchIcon from "../../../../Images/search-icon.png";
+import { useRouter } from "next/router";
 
 const OrderContainer = styled.div`
   h1 {
@@ -176,6 +177,9 @@ const Order = styled.div`
 `;
 
 let Orders = (props) => {
+  const router = useRouter();
+  const { page, search } = router.query;
+
   const [orders, setorders] = useState([]);
 
   const [isLoading, setLoading] = useState(true);
@@ -188,16 +192,28 @@ let Orders = (props) => {
   const [searchResult, setSearchResult] = useState([]);
 
   useEffect(() => {
-    getOrders();
-  }, []);
+    if (router.isReady && page !== undefined) {
+      getOrders();
+      console.log("page");
+    }
+  }, [page, search]);
 
   useEffect(() => {
-    if (orders.length > 0 || !error) {
-      setLoading(false);
+    if (searchedOrder != "") {
+      router.push("/dashboard/Admin/Orders?search=true&page=1");
+      searchOrder();
     } else {
-      setLoading(true);
+      router.push("/dashboard/Admin/Orders?page=1");
     }
-  }, [orders, error]);
+  }, [searchedOrder, search]);
+
+  // useEffect(() => {
+  //   if (orders.length > 0 || !error) {
+  //     setLoading(false);
+  //   } else {
+  //     setLoading(true);
+  //   }
+  // }, [orders, error]);
 
   useEffect(() => {
     if (Object.keys(orders).length != 0) {
@@ -221,8 +237,36 @@ let Orders = (props) => {
       });
 
       setSearchResult(result);
+      setLoading(false);
     }
   }, [orders, searchedOrder, seeOpen, seeCompleted]);
+
+  let searchOrder = () => {
+    let cookie = localStorage.getItem("cookie");
+
+    var myHeaders = new Headers();
+    myHeaders.append("x-api-key", cookie);
+
+    var requestOptions = {
+      method: "GET",
+      headers: myHeaders,
+      redirect: "follow",
+    };
+
+    fetch(
+      "https://easyviews.herokuapp.com/Api/v1/Staff/Orders/Search?SearchTerm=" +
+        searchedOrder +
+        "&Page=" +
+        page,
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        setorders(result.Response);
+        console.log("searched");
+      })
+      .catch((error) => console.log("error", error));
+  };
 
   let getOrders = () => {
     let cookie = localStorage.getItem("cookie");
@@ -237,7 +281,7 @@ let Orders = (props) => {
     };
 
     fetch(
-      "https://easyviews.herokuapp.com/Api/v1/Staff/Orders/View",
+      "https://easyviews.herokuapp.com/Api/v1/Staff/Orders/View?Page=" + page,
       requestOptions
     )
       .then((response) => response.json())
@@ -309,14 +353,15 @@ let Orders = (props) => {
             onClick={() => setseeOpen(!seeOpen)}
             style={!seeOpen ? { color: "#4e4e4e" } : { color: "white" }}
           >
-            Open ({orders.Open.length})
+            Open ( {Object.keys(orders).length != 0 ? orders.Open.length : 0})
           </p>
           <p
             className="completed"
             onClick={() => setseeCompleted(!seeCompleted)}
             style={!seeCompleted ? { color: "#4e4e4e" } : { color: "white" }}
           >
-            Completed ({orders.Completed.length})
+            Completed ({" "}
+            {Object.keys(orders).length != 0 ? orders.Completed.length : 0})
           </p>
 
           <div className="search-bar">
@@ -395,6 +440,42 @@ let Orders = (props) => {
             </div>
           </div>
         </OrderContainer>
+
+        <button
+          onClick={() => {
+            setLoading(true);
+            if (search) {
+              router.push(
+                "/dashboard/Admin/Orders?search=true&page=" +
+                  (parseInt(page) - 1)
+              );
+            } else {
+              router.push(
+                "/dashboard/Admin/Orders?page=" + (parseInt(page) - 1)
+              );
+            }
+          }}
+        >
+          Prev
+        </button>
+
+        <button
+          onClick={() => {
+            setLoading(true);
+            if (search) {
+              router.push(
+                "/dashboard/Admin/Orders?search=true&page=" +
+                  (parseInt(page) + 1)
+              );
+            } else {
+              router.push(
+                "/dashboard/Admin/Orders?page=" + (parseInt(page) + 1)
+              );
+            }
+          }}
+        >
+          next
+        </button>
       </div>
     );
   }

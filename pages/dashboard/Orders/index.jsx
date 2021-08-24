@@ -9,6 +9,7 @@ import Image from "next/image";
 import checkImg from "../../../Images/check.svg";
 import xImg from "../../../Images/x-image.svg";
 import { motion } from "framer-motion";
+import { useRouter } from "next/router";
 
 const OrderContainer = styled.div`
   .panels {
@@ -115,16 +116,26 @@ const Order = styled.div`
 `;
 
 let Orders = (props) => {
+  const router = useRouter();
+  const { page } = router.query;
+
   const [orders, setorders] = useState([]);
   const [isLoading, setLoading] = useState(true);
+
+  const [pageNumber, setpageNumber] = useState(1);
+
   const [error, seterror] = useState(true);
 
-  //Get orders on page load
   useEffect(() => {
-    getOrders();
-  }, []);
+    if (router.isReady && !page) {
+      router.push("/dashboard/Orders?page=1");
+    }
 
-  //Show/hide loading
+    if (router.isReady && page !== undefined) {
+      getOrders();
+    }
+  }, [page]);
+
   useEffect(() => {
     if (orders.length > 0 || !error) {
       setLoading(false);
@@ -146,15 +157,18 @@ let Orders = (props) => {
     };
 
     fetch(
-      "https://easyviews.herokuapp.com/Api/v1/Users/Order/View",
+      "https://easyviews.herokuapp.com/Api/v1/Users/Order/View?Page=" + page,
       requestOptions
     )
       .then((response) => response.json())
       .then((result) => {
-        setorders([...result.Response]);
-
         if (result.Error == 0) {
+          if (result.Response.length == 0) {
+            router.push("/dashboard/Orders?page=1");
+          }
+          setorders([...result.Response]);
           seterror(false);
+          console.log(result.Response.length);
         }
       })
       .catch((error) => console.log("error", error));
@@ -177,6 +191,24 @@ let Orders = (props) => {
             <p>Loading...</p>
           </div>
         </OrderContainer>
+
+        <button
+          onClick={() => {
+            setLoading(true);
+            router.push("/dashboard/Orders?page=" + (parseInt(page) - 1));
+          }}
+        >
+          Prev
+        </button>
+
+        <button
+          onClick={() => {
+            setLoading(true);
+            router.push("/dashboard/Orders?page=" + (parseInt(page) + 1));
+          }}
+        >
+          next
+        </button>
       </div>
     );
   } else {
@@ -252,6 +284,23 @@ let Orders = (props) => {
             </div>
           </div>
         </OrderContainer>
+        <button
+          onClick={() => {
+            setLoading(true);
+            router.push("/dashboard/Orders?page=" + (parseInt(page) - 1));
+          }}
+        >
+          Prev
+        </button>
+
+        <button
+          onClick={() => {
+            setLoading(true);
+            router.push("/dashboard/Orders?page=" + (parseInt(page) + 1));
+          }}
+        >
+          next
+        </button>
       </div>
     );
   }

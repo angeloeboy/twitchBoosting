@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { useEffect, useState, useContext } from "react";
 import { MenuContext } from "../menuContext";
+import TopNotification from "./TopNotification";
 
 let Div = styled.div`
   position: fixed;
@@ -58,8 +59,13 @@ let Div = styled.div`
       display: inline-block;
       width: 50%;
       transition: all 0.3 ease;
+    }
+
+    .confirm {
+      opacity: ${(props) => (!props.submitVisible ? 0.3 : 1)};
+
       &:hover {
-        background-color: #1d35c0;
+        background-color: ${(props) => (!props.submitVisible ? "" : "#1d35c0")};
       }
     }
 
@@ -83,12 +89,19 @@ let OrderForm = (props) => {
   const [twitchName, settwitchName] = useState("");
   const [message, setmessage] = useState("");
   const [error, seterror] = useState(false);
+  const [submitVisible, setSubmitVisible] = useState(false);
 
   const [data, setData, updateProfileData] = useContext(MenuContext);
 
   let handleTwitchNameChange = (e) => {
     let name = e.target.value;
     settwitchName(name);
+
+    if (name !== "") {
+      setSubmitVisible(true);
+    } else {
+      setSubmitVisible(false);
+    }
   };
 
   let createOrder = () => {
@@ -136,7 +149,7 @@ let OrderForm = (props) => {
   };
 
   return (
-    <Div>
+    <Div submitVisible={submitVisible}>
       <div className="inner">
         <h1>{props.plan.ServiceType}</h1>
         <p>
@@ -149,8 +162,10 @@ let OrderForm = (props) => {
         </p>
         <p>
           <span>No. of {props.plan.ServiceType.replace("Bot", "ers")}:</span>
-
-          {" " + props.plan.FollowersRequested}
+          {props.plan.ServiceType === "FollowBot"
+            ? " " + props.plan.FollowersRequested
+            : " " + props.plan.MaximumThreads}
+          {/* {" " + props.plan.FollowersRequested} */}
         </p>
         <p>
           {" "}
@@ -161,17 +176,26 @@ let OrderForm = (props) => {
             onChange={(e) => handleTwitchNameChange(e)}
           />
         </p>
-        <button onClick={() => createOrder()}>Confirm Order</button>
+
+        <button
+          onClick={() => createOrder()}
+          disabled={twitchName === ""}
+          className="confirm"
+        >
+          Confirm Order
+        </button>
+
         <button onClick={() => props.setisBuyVisible(false)} className="cancel">
           Cancel
         </button>
 
-        <p
+        {message !== "" && <TopNotification text={message} />}
+        {/* <p
           className="message"
-          style={error ? { color: "red" } : { color: "green" }}
+          style={!error ? { color: "red" } : { color: "green" }}
         >
           {message}
-        </p>
+        </p> */}
       </div>
     </Div>
   );

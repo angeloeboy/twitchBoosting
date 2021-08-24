@@ -140,6 +140,7 @@ let ResetPassword = () => {
   const [loading, setloading] = useState(false);
 
   const [succesfullPassReset, setsuccesfullPassReset] = useState(false);
+
   useEffect(() => {
     if (VerificationCode != undefined) {
       console.log(VerificationCode);

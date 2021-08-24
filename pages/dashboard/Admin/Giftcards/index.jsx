@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
 import AddGiftCardModal from "../../../../Components/Dashboard/Giftcard/AddGiftCardModal";
 import GiftcardDescriptionModal from "./../../../../Components/Dashboard/Giftcard/GiftcardDescriptionModal";
+import { useRouter } from "next/router";
 
 const GiftCardsContainer = styled.div`
   /* position: relative; */
@@ -195,6 +196,9 @@ const GiftCard = styled.div`
 `;
 
 let GiftCards = () => {
+  const router = useRouter();
+  const { page, search } = router.query;
+
   const [giftCards, setgiftCards] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -211,9 +215,27 @@ let GiftCards = () => {
   const [deletedGc, setDeletedGc] = useState("");
   const [giftCardLength, setgiftCardLength] = useState("");
 
+  const [Available, setAvailable] = useState(0);
+  const [Redeemed, setRedeemed] = useState(0);
+
+  //get giftcards
   useEffect(() => {
-    getGiftCards();
-  }, [deletedGc, giftCardLength]);
+    if (router.isReady && page !== undefined) {
+      getGiftCards();
+    }
+  }, [page, search, deletedGc, giftCardLength]);
+
+  //change to search depending on url
+  useEffect(() => {
+    if (searchedGiftCard != "") {
+      router.push("/dashboard/Admin/Giftcards?search=true&page=1");
+
+      searchGiftcard();
+      console.log(search);
+    } else {
+      router.push("/dashboard/Admin/Giftcards?page=1");
+    }
+  }, [searchedGiftCard, search]);
 
   useEffect(() => {
     if (Object.keys(giftCards).length != 0) {
@@ -237,16 +259,15 @@ let GiftCards = () => {
         });
 
         arr = [...item, ...arr];
-
-        // arr = [...giftCards.Redeemed, ...arr];
       }
 
       let result = arr.filter((giftCard) => {
         return giftCard.Name.toLowerCase().includes(searchedGiftCard);
       });
 
-      console.log(result);
+      // console.log(result);
       setSearchResult(result);
+      setLoading(false);
     }
   }, [giftCards, seeRedeemed, seeAvailable, searchedGiftCard]);
 
@@ -263,15 +284,41 @@ let GiftCards = () => {
     };
 
     fetch(
-      "https://easyviews.herokuapp.com/Api/v1/Staff/GiftCard/view",
+      "https://easyviews.herokuapp.com/Api/v1/Staff/GiftCard/view?Page=" + page,
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        if (result.Error == 0) {
+          setgiftCards(result.Response);
+        }
+      })
+      .catch((error) => console.log("error", error));
+  };
+
+  let searchGiftcard = () => {
+    let cookie = localStorage.getItem("cookie");
+
+    var myHeaders = new Headers();
+    myHeaders.append("x-api-key", cookie);
+
+    var requestOptions = {
+      method: "GET",
+      headers: myHeaders,
+      redirect: "follow",
+    };
+
+    fetch(
+      "https://easyviews.herokuapp.com/Api/v1/Staff/GiftCard/Search?SearchTerm=" +
+        searchedGiftCard +
+        "&Page=" +
+        page,
       requestOptions
     )
       .then((response) => response.json())
       .then((result) => {
         setgiftCards(result.Response);
-        if (result.Error == 0) {
-          setLoading(false);
-        }
+        // console.log("searched");
       })
       .catch((error) => console.log("error", error));
   };
@@ -353,14 +400,22 @@ let GiftCards = () => {
               onClick={() => setseeAvailable(!seeAvailable)}
               style={!seeAvailable ? { color: "#4e4e4e" } : { color: "white" }}
             >
-              Available ({giftCards.Available.length})
+              Available (
+              {Object.keys(giftCards).length != 0
+                ? giftCards.Available.length
+                : 0}
+              )
             </p>
             <p
               className="redeemed"
               onClick={() => setseeRedeemed(!seeRedeemed)}
               style={!seeRedeemed ? { color: "#4e4e4e" } : { color: "white" }}
             >
-              Redeemed ({giftCards.Redeemed.length})
+              Redeemed (
+              {Object.keys(giftCards).length != 0
+                ? giftCards.Redeemed.length
+                : 0}
+              )
             </p>
           </div>
 
@@ -459,6 +514,43 @@ let GiftCards = () => {
             )}
           </AnimatePresence>
         </div>
+
+        <button
+          onClick={() => {
+            setLoading(true);
+            w;
+            if (search) {
+              router.push(
+                "/dashboard/Admin/Giftcards?search=true&page=" +
+                  (parseInt(page) - 1)
+              );
+            } else {
+              router.push(
+                "/dashboard/Admin/Giftcards?page=" + (parseInt(page) - 1)
+              );
+            }
+          }}
+        >
+          Prev
+        </button>
+
+        <button
+          onClick={() => {
+            setLoading(true);
+            if (search) {
+              router.push(
+                "/dashboard/Admin/Giftcards?search=true&page=" +
+                  (parseInt(page) + 1)
+              );
+            } else {
+              router.push(
+                "/dashboard/Admin/Giftcards?page=" + (parseInt(page) + 1)
+              );
+            }
+          }}
+        >
+          next
+        </button>
       </GiftCardsContainer>
     );
   }

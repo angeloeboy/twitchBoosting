@@ -142,14 +142,23 @@ let Login = () => {
   const router = useRouter();
 
   useEffect(() => {
+    console.log(
+      sessionStorage.getItem("fromRegister") === null ||
+        sessionStorage.getItem("fromRegister") !== "true"
+        ? "wlang lamang"
+        : "may laman "
+    );
+
     if (
       localStorage.getItem("cookie") !== null &&
-      localStorage.getItem("cookie") !== ""
+      localStorage.getItem("cookie") !== "" &&
+      (sessionStorage.getItem("fromRegister") === null ||
+        sessionStorage.getItem("fromRegister") !== "true")
     ) {
       let cookie = localStorage.getItem("cookie");
       getProfileData(cookie);
       setloading(true);
-      console.log(localStorage.getItem("cookie") !== "");
+      sessionStorage.setItem("fromRegister", "false");
     }
   }, []);
 

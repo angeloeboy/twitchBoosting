@@ -148,7 +148,7 @@ let AddGiftCardModal = ({ setaddGiftCardVisible, setgiftCardLength }) => {
     };
 
     fetch(
-      "https://easyviews.herokuapp.com/Api/v1/Staff/GiftCard/view",
+      "https://easyviews.herokuapp.com/Api/v1/Staff/GiftCard/view?Page=1",
       requestOptions
     )
       .then((response) => response.json())

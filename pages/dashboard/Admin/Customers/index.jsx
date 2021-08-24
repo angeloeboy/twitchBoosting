@@ -11,6 +11,7 @@ import styled from "styled-components";
 import checkImg from "../../../../Images/check.svg";
 import xImg from "../../../../Images/x-image.svg";
 import searchIcon from "../../../../Images/search-icon.png";
+import { useRouter } from "next/router";
 
 const CustomersContainer = styled.div`
   h1 {
@@ -138,10 +139,11 @@ const Customer = styled.div`
 `;
 
 let Customers = () => {
+  const router = useRouter();
+  const { page, search } = router.query;
+
   const [customers, setcustomers] = useState({});
   const [loaded, setloaded] = useState(false);
-
-  const [allCustomer, setallCustomer] = useState([]);
 
   const [seeValid, setseeValid] = useState(true);
   const [seeBanned, setseeBanned] = useState(true);
@@ -151,31 +153,42 @@ let Customers = () => {
   const [searchResult, setsearchResult] = useState([]);
 
   //Get customers on load
+
   useEffect(() => {
-    getCustomers();
-  }, []);
+    if (router.isReady && page !== undefined) {
+      getCustomers();
+      console.log("page");
+    }
+  }, [page, search]);
 
   //Filter the customers || Valid or Banned
   useEffect(() => {
     if (Object.keys(customers).length != 0) {
       setloaded(true);
       let arr = [];
-
       if (seeValid) {
         arr = [...customers.Valid, ...arr];
       }
-
       if (seeBanned) {
         arr = [...customers.Banned, ...arr];
       }
-
       let searched = arr.filter((customer) => {
         return customer.Email.includes(searchedCustomer);
       });
 
       setsearchResult(searched);
     }
-  }, [customers, seeValid, seeBanned, searchedCustomer]);
+  }, [customers, seeValid, seeBanned]);
+
+  //Search
+  useEffect(() => {
+    if (searchedCustomer != "") {
+      router.push("/dashboard/Admin/Customers?search=true&page=1");
+      searchCustomer();
+    } else {
+      router.push("/dashboard/Admin/Customers?page=1");
+    }
+  }, [searchedCustomer, search]);
 
   let getCustomers = () => {
     let cookie = localStorage.getItem("cookie");
@@ -190,12 +203,39 @@ let Customers = () => {
     };
 
     fetch(
-      "https://easyviews.herokuapp.com/Api/v1/Staff/Users/View",
+      "https://easyviews.herokuapp.com/Api/v1/Staff/Users/View?Page=" + page,
       requestOptions
     )
       .then((response) => response.json())
       .then((result) => {
         setcustomers(result.Response);
+      })
+      .catch((error) => console.log("error", error));
+  };
+
+  let searchCustomer = () => {
+    let cookie = localStorage.getItem("cookie");
+
+    var myHeaders = new Headers();
+    myHeaders.append("x-api-key", cookie);
+
+    var requestOptions = {
+      method: "GET",
+      headers: myHeaders,
+      redirect: "follow",
+    };
+
+    fetch(
+      "https://easyviews.herokuapp.com/Api/v1/Staff/Users/Search?SearchTerm=" +
+        searchedCustomer +
+        "&Page=" +
+        page,
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        setcustomers(result.Response);
+        console.log("searched");
       })
       .catch((error) => console.log("error", error));
   };
@@ -211,14 +251,17 @@ let Customers = () => {
               style={!seeValid ? { color: "#4e4e4e" } : { color: "white" }}
               onClick={() => setseeValid(!seeValid)}
             >
-              Valid ({customers.Valid.length})
+              Valid (
+              {Object.keys(customers).length != 0 ? customers.Valid.length : 0})
             </p>
             <p
               className="banned"
               style={!seeBanned ? { color: "#4e4e4e" } : { color: "white" }}
               onClick={() => setseeBanned(!seeBanned)}
             >
-              Banned ({customers.Banned.length})
+              Banned (
+              {Object.keys(customers).length != 0 ? customers.Banned.length : 0}
+              )
             </p>
 
             <div className="search-bar">
@@ -288,6 +331,42 @@ let Customers = () => {
             </div>
           </div>
         </CustomersContainer>
+
+        <button
+          onClick={() => {
+            setloaded(true);
+            if (search) {
+              router.push(
+                "/dashboard/Admin/Customers?search=true&page=" +
+                  (parseInt(page) - 1)
+              );
+            } else {
+              router.push(
+                "/dashboard/Admin/Customers?page=" + (parseInt(page) - 1)
+              );
+            }
+          }}
+        >
+          Prev
+        </button>
+
+        <button
+          onClick={() => {
+            setloaded(true);
+            if (search) {
+              router.push(
+                "/dashboard/Admin/Customers?search=true&page=" +
+                  (parseInt(page) + 1)
+              );
+            } else {
+              router.push(
+                "/dashboard/Admin/Customers?page=" + (parseInt(page) + 1)
+              );
+            }
+          }}
+        >
+          next
+        </button>
       </div>
     );
   } else {
