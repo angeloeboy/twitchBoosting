@@ -100,6 +100,18 @@ const Div = styled.div`
             margin: 0 auto;
           }
         }
+
+        .error {
+          color: white;
+          background-color: #ff000081;
+          padding: 15px;
+        }
+
+        .success {
+          color: #444444;
+          background-color: #00ff4081;
+          padding: 15px;
+        }
       }
     }
   }
@@ -141,6 +153,8 @@ let ResetPassword = () => {
 
   const [succesfullPassReset, setsuccesfullPassReset] = useState(false);
 
+  const [error, seterror] = useState("");
+
   useEffect(() => {
     if (VerificationCode != undefined) {
       console.log(VerificationCode);
@@ -153,7 +167,7 @@ let ResetPassword = () => {
 
   let resetPassword = (e) => {
     e.preventDefault();
-
+    seterror("");
     let myHeaders = new Headers();
     myHeaders.append("Content-Type", "application/json");
 
@@ -179,6 +193,11 @@ let ResetPassword = () => {
 
         if (result.Error == 0) {
           setsuccesfullPassReset(true);
+          setTimeout(() => {
+            router.push("/login");
+          }, 1000);
+        } else {
+          seterror(result.ErrorMessage);
         }
       })
       .catch((error) => console.log("error", error));
@@ -253,20 +272,23 @@ let ResetPassword = () => {
                   )}
                 </div>
               </label>
+              {succesfullPassReset && (
+                <>
+                  <p className="success">
+                    Password reset success! You will be redirected to login.
+                  </p>
+                </>
+              )}
+
+              {error != "" && (
+                <>
+                  <p className="error">{error}</p>
+                </>
+              )}
             </form>
-            <p>
-              Dont have an account?{" "}
-              <Link href="/register">
-                <a>Sign up</a>
-              </Link>
-            </p>
           </div>
         </motion.div>
       </div>
-
-      {succesfullPassReset && (
-        <TopNotification text={"Password Reset Success!"} />
-      )}
     </Div>
   );
 };
