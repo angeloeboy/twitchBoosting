@@ -61,7 +61,9 @@ const CustomersContainer = styled.div`
     display: flex;
     align-items: center;
     padding-bottom: 10px;
-
+    img {
+      cursor: pointer;
+    }
     input {
       background-color: transparent;
       border: none;
@@ -138,6 +140,29 @@ const Customer = styled.div`
   }
 `;
 
+const Buttons = styled.div`
+  justify-content: space-between;
+  display: flex;
+  margin-top: 20px;
+
+  button {
+    padding: 10px;
+    width: 100px;
+    border: 1px solid white;
+    background-color: transparent;
+    color: white;
+    cursor: pointer;
+  }
+
+  .previous {
+    opacity: ${(props) => (props.page === "1" ? 0.2 : 1)};
+  }
+
+  .next {
+    opacity: ${(props) => (props.isNextPossible ? 1 : 0.2)};
+  }
+`;
+
 let Customers = () => {
   const router = useRouter();
   const { page, search } = router.query;
@@ -152,12 +177,32 @@ let Customers = () => {
 
   const [searchResult, setsearchResult] = useState([]);
 
-  //Get customers on load
+  const [currentPage, setcurrentPage] = useState();
+  const [isNextPossible, setisNextPossible] = useState(false);
 
+  // Get customers on load
   useEffect(() => {
-    if (router.isReady && page !== undefined) {
-      getCustomers();
-      console.log("page");
+    if (router.isReady) {
+      setloaded(false);
+
+      if (search == undefined) {
+        getCustomers();
+        setcurrentPage(page);
+        setSearchedCustomer("");
+      } else {
+        console.log(search);
+        setSearchedCustomer(search);
+
+        searchCustomer();
+
+        setcurrentPage(page);
+      }
+
+      if (page == undefined && search == undefined) {
+        router.push("/dashboard/Admin/Customers?page=1");
+      }
+
+      console.log("ready");
     }
   }, [page, search]);
 
@@ -180,15 +225,14 @@ let Customers = () => {
     }
   }, [customers, seeValid, seeBanned]);
 
-  //Search
-  useEffect(() => {
+  let searchFunc = () => {
     if (searchedCustomer != "") {
-      router.push("/dashboard/Admin/Customers?search=true&page=1");
+      router.push(
+        "/dashboard/Admin/Customers?search=" + searchedCustomer + "&page=1"
+      );
       searchCustomer();
-    } else {
-      router.push("/dashboard/Admin/Customers?page=1");
     }
-  }, [searchedCustomer, search]);
+  };
 
   let getCustomers = () => {
     let cookie = localStorage.getItem("cookie");
@@ -209,6 +253,35 @@ let Customers = () => {
       .then((response) => response.json())
       .then((result) => {
         setcustomers(result.Response);
+        console.log(result.Response);
+        if (result.Response.Valid.length + result.Response.Banned.length > 30) {
+          setisNextPossible(false);
+        } else {
+          getNextPageCostumers(requestOptions);
+        }
+
+        if (result.Response.Valid.length + result.Response.Banned.length == 0) {
+          router.push("/dashboard/Admin/Customers?page=1");
+        }
+      })
+      .catch((error) => console.log("error", error));
+  };
+
+  let getNextPageCostumers = (requestOptions) => {
+    let num = parseInt(page) + 1;
+    let word = num.toString();
+
+    fetch(
+      "https://easyviews.herokuapp.com/Api/v1/Staff/Users/View?Page=" + word,
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        if (result.Response.Valid.length + result.Response.Banned.length == 0) {
+          setisNextPossible(false);
+        } else {
+          setisNextPossible(true);
+        }
       })
       .catch((error) => console.log("error", error));
   };
@@ -225,9 +298,45 @@ let Customers = () => {
       redirect: "follow",
     };
 
+    if (search !== undefined && search !== "") {
+      fetch(
+        "https://easyviews.herokuapp.com/Api/v1/Staff/Users/Search?SearchTerm=" +
+          search +
+          "&Page=" +
+          page,
+        requestOptions
+      )
+        .then((response) => response.json())
+        .then((result) => {
+          setcustomers(result.Response);
+          console.log("searched");
+
+          if (
+            result.Response.Valid.length + result.Response.Banned.length >
+            0
+          ) {
+            setisNextPossible(false);
+          } else {
+            getNextPageSearchedCustomer(requestOptions);
+          }
+
+          if (
+            result.Response.Valid.length + result.Response.Banned.length ==
+            0
+          ) {
+            router.push(
+              "/dashboard/Admin/Customers?search=" + search + "&page=1"
+            );
+          }
+        })
+        .catch((error) => console.log("error", error));
+    }
+  };
+
+  let getNextPageSearchedCustomer = (requestOptions) => {
     fetch(
       "https://easyviews.herokuapp.com/Api/v1/Staff/Users/Search?SearchTerm=" +
-        searchedCustomer +
+        search +
         "&Page=" +
         page,
       requestOptions
@@ -236,6 +345,15 @@ let Customers = () => {
       .then((result) => {
         setcustomers(result.Response);
         console.log("searched");
+
+        if (
+          result.Response.Valid.length + result.Response.Banned.length ===
+          0
+        ) {
+          setisNextPossible(false);
+        } else {
+          setisNextPossible(true);
+        }
       })
       .catch((error) => console.log("error", error));
   };
@@ -266,13 +384,16 @@ let Customers = () => {
 
             <div className="search-bar">
               <div>
-                <Image src={searchIcon} />
+                <Image src={searchIcon} onClick={() => searchFunc()} />
               </div>
               <input
                 type="text"
                 value={searchedCustomer}
                 onChange={(e) => {
                   setSearchedCustomer(e.target.value);
+                  if (e.target.value == "") {
+                    router.push("/dashboard/Admin/Customers?page=1");
+                  }
                 }}
                 placeholder="Type Email"
               />
@@ -332,41 +453,105 @@ let Customers = () => {
           </div>
         </CustomersContainer>
 
-        <button
-          onClick={() => {
-            setloaded(true);
-            if (search) {
-              router.push(
-                "/dashboard/Admin/Customers?search=true&page=" +
-                  (parseInt(page) - 1)
-              );
-            } else {
-              router.push(
-                "/dashboard/Admin/Customers?page=" + (parseInt(page) - 1)
-              );
-            }
-          }}
-        >
-          Prev
-        </button>
+        {/* <Buttons page={currentPage} isNextPossible={isNextPossible}>
+          <button
+            onClick={() => {
+              if (page !== "1") {
+                setLoading(true);
+                setcurrentPage(currentPage - 1);
+                router.push("/dashboard/Orders?page=" + (parseInt(page) - 1));
+              }
+            }}
+            className="previous"
+          >
+            {"< Previous"}
+          </button>
 
-        <button
-          onClick={() => {
-            setloaded(true);
-            if (search) {
-              router.push(
-                "/dashboard/Admin/Customers?search=true&page=" +
-                  (parseInt(page) + 1)
-              );
-            } else {
-              router.push(
-                "/dashboard/Admin/Customers?page=" + (parseInt(page) + 1)
-              );
-            }
-          }}
-        >
-          next
-        </button>
+          <button
+            onClick={() => {
+              if (searchResult.length == "30") {
+                setLoading(true);
+                setcurrentPage(currentPage + 1);
+                router.push("/dashboard/Orders?page=" + (parseInt(page) + 1));
+              }
+            }}
+            className="next"
+          >
+            {"Next >"}
+          </button>
+        </Buttons> */}
+
+        {searchedCustomer == "" ? (
+          <Buttons page={currentPage} isNextPossible={isNextPossible}>
+            <button
+              onClick={() => {
+                if (page !== "1") {
+                  setLoading(true);
+                  setcurrentPage(currentPage - 1);
+                  router.push(
+                    "/dashboard/Admin/Customers?page=" + (parseInt(page) - 1)
+                  );
+                }
+              }}
+              className="previous"
+            >
+              {"< Previous"}
+            </button>
+
+            <button
+              onClick={() => {
+                if (isNextPossible) {
+                  setLoading(true);
+                  setcurrentPage(currentPage + 1);
+                  router.push(
+                    "/dashboard/Admin/Customers?page=" + (parseInt(page) + 1)
+                  );
+                }
+              }}
+              className="next"
+            >
+              {"Next >"}
+            </button>
+          </Buttons>
+        ) : (
+          <Buttons page={currentPage} isNextPossible={isNextPossible}>
+            <button
+              onClick={() => {
+                if (page !== "1") {
+                  setLoading(true);
+                  setcurrentPage(currentPage - 1);
+                  router.push(
+                    "/dashboard/Admin/Customers?search=" +
+                      search +
+                      "&page=" +
+                      (parseInt(page) - 1)
+                  );
+                }
+              }}
+              className="previous"
+            >
+              {"< Previous"}
+            </button>
+
+            <button
+              onClick={() => {
+                if (isNextPossible) {
+                  setLoading(true);
+                  setcurrentPage(currentPage + 1);
+                  router.push(
+                    "/dashboard/Admin/Customers?search=" +
+                      search +
+                      "&page=" +
+                      (parseInt(page) + 1)
+                  );
+                }
+              }}
+              className="next"
+            >
+              {"Next >"}
+            </button>
+          </Buttons>
+        )}
       </div>
     );
   } else {

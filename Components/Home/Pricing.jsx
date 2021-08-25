@@ -186,7 +186,7 @@ const Pricing = () => {
             {plans.map((plan) => {
               return (
                 // eslint-disable-next-line react/jsx-key
-                <div className="price">
+                <div className="price" key={plan.Name}>
                   <h3>{plan.Name}</h3>
                   <p className="cost">Starts at ${plan.Cost}</p>
                 </div>

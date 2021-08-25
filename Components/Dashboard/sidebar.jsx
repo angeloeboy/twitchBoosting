@@ -68,7 +68,7 @@ const SidebarDiv = styled.div`
       margin-top: 20px;
       border: 1px solid white;
       transition: all 0.3s ease;
-
+      cursor: pointer;
       &:hover {
         background-color: white;
         color: black;
@@ -317,6 +317,7 @@ let Sidebar = (props) => {
   const [selected, setselected] = useState("");
 
   const [isNotVerifiedVisible, setisNotVerifiedVisible] = useState(true);
+
   useEffect(() => {
     setuserData(JSON.parse(localStorage.getItem("userObject")));
   }, [data]);
@@ -383,22 +384,6 @@ let Sidebar = (props) => {
 
   return (
     <SidebarDiv visible={isMenuVisible}>
-      {/* {userData.Verified && isNotVerifiedVisible && (
-        <div className="verify">
-          <p>Your account is unverified</p>
-          <button
-            onClick={() => {
-              setTimeout(() => {
-                setisNotVerifiedVisible(false);
-              }, 1000);
-              sendVerification();
-            }}
-          >
-            Send Verification
-          </button>
-        </div>
-      )} */}
-
       <div
         onClick={() => setIsMenuvisible(!isMenuVisible)}
         className="toggleMenu"
@@ -417,11 +402,12 @@ let Sidebar = (props) => {
           <p>Credits: {userData.Credits}</p>
           <button
             onClick={() => {
+              props.setvisible(false);
               setTimeout(() => {
                 localStorage.clear();
                 sessionStorage.clear();
                 props.setlogout(true);
-              }, 2000);
+              }, 1000);
             }}
             className="logout"
           >

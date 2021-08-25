@@ -101,7 +101,7 @@ let MainDashboard = ({ children }) => {
     return (
       <MenuProvider>
         <Div>
-          <Sidebar setlogout={setlogout} />
+          <Sidebar setlogout={setlogout} setvisible={setvisible} />
           <div className="children">
             <motion.div
               initial="hidden"

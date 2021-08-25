@@ -9,6 +9,9 @@ import { useRouter } from "next/router";
 import spinner from "../Images/spinner.gif";
 import { motion } from "framer-motion";
 import Head from "next/head";
+import loadingImg from "../Images/loading.gif";
+
+import logo from "../Images/logo.png";
 
 const Div = styled.div`
   display: flex;
@@ -25,6 +28,10 @@ const Div = styled.div`
       position: absolute;
       bottom: 100px;
       width: 70%;
+
+      img {
+        cursor: pointer;
+      }
     }
   }
 
@@ -76,6 +83,12 @@ const Div = styled.div`
           }
         }
 
+        .error {
+          color: white;
+          background-color: #ff000081;
+          padding: 15px;
+        }
+
         .forgotPass {
           text-align: right;
           font-weight: 400;
@@ -86,6 +99,7 @@ const Div = styled.div`
           background-color: #192377;
           font-weight: bold;
           transition: all 0.4s ease;
+
           &:hover {
             background-color: #2332bd;
           }
@@ -93,11 +107,20 @@ const Div = styled.div`
           input {
             color: white;
             font-size: 16px;
+            cursor: pointer;
           }
 
           .spinner {
-            width: 50px;
-            margin: 0 auto;
+            width: 30px;
+            margin-left: auto;
+            margin-right: auto;
+            padding-top: 8px;
+
+            * {
+              margin: 0px;
+              padding: 0px;
+              width: 50px;
+            }
           }
         }
       }
@@ -173,6 +196,7 @@ let Login = () => {
   let handleSubmit = (e) => {
     e.preventDefault();
     setloading(true);
+    setErr(false);
 
     if (!forgotPassVisible) {
       let myHeaders = new Headers();
@@ -281,6 +305,10 @@ let Login = () => {
           <Image src={stars} alt="Stars" />
         </div>
         <div className="texts">
+          <Link href={"/"} className="logo">
+            <Image src={logo} />
+          </Link>
+
           <h1>Welcome Back!</h1>
           <p>
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vitae
@@ -345,16 +373,17 @@ let Login = () => {
                   <a href="">Forgot Password</a>
                 </p>
 
-                {err && <p>Incorrect email or password</p>}
                 <div className="submit">
                   {loading ? (
                     <div className="spinner">
-                      <Image src={spinner} alt="loading" />
+                      <Image src={loadingImg} alt="loading" />
                     </div>
                   ) : (
-                    <input type="submit" value="Login" />
+                    <input type="submit" value="Sign up" />
                   )}
                 </div>
+
+                {err && <p className="error">Incorrect email or password</p>}
               </form>
               <p>
                 Dont have an account?{" "}
@@ -385,6 +414,7 @@ let Login = () => {
                 </label>
 
                 {err && <p>Incorrect email or password</p>}
+
                 <div className="submit">
                   {loading ? (
                     <input type="submit" value="Sent!" />

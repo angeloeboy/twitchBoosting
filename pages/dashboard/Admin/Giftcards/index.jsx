@@ -195,6 +195,29 @@ const GiftCard = styled.div`
   }
 `;
 
+const Buttons = styled.div`
+  justify-content: space-between;
+  display: flex;
+  margin-top: 20px;
+
+  button {
+    padding: 10px;
+    width: 100px;
+    border: 1px solid white;
+    background-color: transparent;
+    color: white;
+    cursor: pointer;
+  }
+
+  .previous {
+    opacity: ${(props) => (props.page === "1" ? 0.2 : 1)};
+  }
+
+  .next {
+    opacity: ${(props) => (props.isNextPossible ? 1 : 0.2)};
+  }
+`;
+
 let GiftCards = () => {
   const router = useRouter();
   const { page, search } = router.query;
@@ -215,28 +238,33 @@ let GiftCards = () => {
   const [deletedGc, setDeletedGc] = useState("");
   const [giftCardLength, setgiftCardLength] = useState("");
 
-  const [Available, setAvailable] = useState(0);
-  const [Redeemed, setRedeemed] = useState(0);
+  const [currentPage, setcurrentPage] = useState();
+  const [isNextPossible, setisNextPossible] = useState(false);
 
-  //get giftcards
   useEffect(() => {
-    if (router.isReady && page !== undefined) {
-      getGiftCards();
+    if (router.isReady) {
+      if (search == undefined) {
+        getGiftCards();
+        setcurrentPage(page);
+        setsearchedGiftCard("");
+      } else {
+        console.log(search);
+        setsearchedGiftCard(search);
+
+        if (search != "") {
+          searchGiftcard();
+        }
+
+        setcurrentPage(page);
+      }
+
+      if (page == undefined && search == undefined) {
+        router.push("/dashboard/Admin/Giftcards?page=1");
+      }
     }
   }, [page, search, deletedGc, giftCardLength]);
 
-  //change to search depending on url
-  useEffect(() => {
-    if (searchedGiftCard != "") {
-      router.push("/dashboard/Admin/Giftcards?search=true&page=1");
-
-      searchGiftcard();
-      console.log(search);
-    } else {
-      router.push("/dashboard/Admin/Giftcards?page=1");
-    }
-  }, [searchedGiftCard, search]);
-
+  //filter the display
   useEffect(() => {
     if (Object.keys(giftCards).length != 0) {
       let arr = [];
@@ -261,16 +289,23 @@ let GiftCards = () => {
         arr = [...item, ...arr];
       }
 
-      let result = arr.filter((giftCard) => {
-        return giftCard.Name.toLowerCase().includes(searchedGiftCard);
-      });
+      console.log(arr);
 
-      // console.log(result);
-      setSearchResult(result);
+      setSearchResult(arr);
       setLoading(false);
     }
-  }, [giftCards, seeRedeemed, seeAvailable, searchedGiftCard]);
+  }, [giftCards, seeRedeemed, seeAvailable]);
 
+  let searchFunc = () => {
+    if (searchedGiftCard != "") {
+      router.push(
+        "/dashboard/Admin/Giftcards?search=" + searchedGiftCard + "&page=1"
+      );
+      searchGiftcard();
+    }
+  };
+
+  //get giftcards
   let getGiftCards = () => {
     let cookie = localStorage.getItem("cookie");
 
@@ -291,11 +326,45 @@ let GiftCards = () => {
       .then((result) => {
         if (result.Error == 0) {
           setgiftCards(result.Response);
+          // console.log(result.Response);
+
+          if (result.Response.Available + result.Response.Redeemed > 30) {
+            setisNextPossible(false);
+            console.log("bigger?");
+          } else {
+            getGiftCardsNextPage(requestOptions);
+          }
+
+          if (result.Response.Available + result.Response.Redeemed == 0) {
+            router.push("/dashboard/Admin/Giftcards?page=1");
+          }
         }
       })
       .catch((error) => console.log("error", error));
   };
 
+  //check if next page has content. If false, allow going to next page
+  let getGiftCardsNextPage = (requestOptions) => {
+    let num = parseInt(page) + 1;
+    let word = num.toString();
+
+    fetch(
+      "https://easyviews.herokuapp.com/Api/v1/Staff/GiftCard/view?Page=" + word,
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        if (result.Error == 0) {
+          console.log(result.Response);
+          if (result.Response.Available + result.Response.Redeemed < 0) {
+            setisNextPossible(true);
+          }
+        }
+      })
+      .catch((error) => console.log("error", error));
+  };
+
+  //search giftcards
   let searchGiftcard = () => {
     let cookie = localStorage.getItem("cookie");
 
@@ -307,22 +376,68 @@ let GiftCards = () => {
       headers: myHeaders,
       redirect: "follow",
     };
+    if (search !== undefined && search !== "") {
+      fetch(
+        "https://easyviews.herokuapp.com/Api/v1/Staff/GiftCard/Search?SearchTerm=" +
+          search +
+          "&Page=" +
+          page,
+        requestOptions
+      )
+        .then((response) => response.json())
+        .then((result) => {
+          if (result.Error == 0) {
+            setgiftCards(result.Response);
+            if (
+              result.Response.Available.length +
+                result.Response.Redeemed.length <
+              30
+            ) {
+              setisNextPossible(false);
+            } else {
+              getSearchCardsNextPage(requestOptions);
+            }
+
+            if (result.Response.Available + result.Response.Redeemed == 0) {
+              router.push(
+                "/dashboard/Admin/Giftcards?search=" + search + "&page=1"
+              );
+            }
+          }
+        })
+        .catch((error) => console.log("error", error));
+    } else {
+      console.log("undefined");
+    }
+  };
+
+  //check if next page has content. If false, allow going to next page
+  let getSearchCardsNextPage = (requestOptions) => {
+    let num = parseInt(page) + 1;
+    let word = num.toString();
 
     fetch(
       "https://easyviews.herokuapp.com/Api/v1/Staff/GiftCard/Search?SearchTerm=" +
-        searchedGiftCard +
+        search +
         "&Page=" +
-        page,
+        word,
       requestOptions
     )
       .then((response) => response.json())
       .then((result) => {
-        setgiftCards(result.Response);
-        // console.log("searched");
+        if (result.Error == 0) {
+          console.log(result.Response);
+          console.log("smailler");
+
+          if (result.Response.Available + result.Response.Redeemed === 0) {
+            setisNextPossible(true);
+          }
+        }
       })
       .catch((error) => console.log("error", error));
   };
 
+  //get giftcard data
   let getSpecificGc = (codeName) => {
     let cookie = localStorage.getItem("cookie");
 
@@ -429,13 +544,20 @@ let GiftCards = () => {
 
         <div className="search-bar">
           <div>
-            <Image src={searchIcon} alt="Search Icon" />
+            <Image
+              src={searchIcon}
+              alt="Search Icon"
+              onClick={() => searchFunc()}
+            />
           </div>
           <input
             type="text"
             value={searchedGiftCard}
             onChange={(e) => {
               setsearchedGiftCard(e.target.value);
+              if (e.target.value == "") {
+                router.push("/dashboard/Admin/Giftcards?page=1");
+              }
             }}
             placeholder="Type giftcard name"
           />
@@ -515,42 +637,73 @@ let GiftCards = () => {
           </AnimatePresence>
         </div>
 
-        <button
-          onClick={() => {
-            setLoading(true);
-            w;
-            if (search) {
-              router.push(
-                "/dashboard/Admin/Giftcards?search=true&page=" +
-                  (parseInt(page) - 1)
-              );
-            } else {
-              router.push(
-                "/dashboard/Admin/Giftcards?page=" + (parseInt(page) - 1)
-              );
-            }
-          }}
-        >
-          Prev
-        </button>
+        {searchedGiftCard == "" ? (
+          <Buttons page={currentPage} isNextPossible={isNextPossible}>
+            <button
+              onClick={() => {
+                if (page !== "1") {
+                  setLoading(true);
+                  setcurrentPage(currentPage - 1);
+                  router.push(
+                    "/dashboard/Admin/Giftcards?page=" + (parseInt(page) - 1)
+                  );
+                }
+              }}
+              className="previous"
+            >
+              {"< Previous"}
+            </button>
 
-        <button
-          onClick={() => {
-            setLoading(true);
-            if (search) {
-              router.push(
-                "/dashboard/Admin/Giftcards?search=true&page=" +
-                  (parseInt(page) + 1)
-              );
-            } else {
-              router.push(
-                "/dashboard/Admin/Giftcards?page=" + (parseInt(page) + 1)
-              );
-            }
-          }}
-        >
-          next
-        </button>
+            <button
+              onClick={() => {
+                if (isNextPossible) {
+                  setLoading(true);
+                  setcurrentPage(currentPage + 1);
+                  router.push(
+                    "/dashboard/Admin/Giftcards?page=" + (parseInt(page) + 1)
+                  );
+                }
+              }}
+              className="next"
+            >
+              {"Next >"}
+            </button>
+          </Buttons>
+        ) : (
+          <Buttons page={currentPage} isNextPossible={isNextPossible}>
+            <button
+              onClick={() => {
+                if (page !== "1") {
+                  setLoading(true);
+                  setcurrentPage(currentPage - 1);
+                  router.push(
+                    "/dashboard/Admin/Giftcards?search=true&page=" +
+                      (parseInt(page) - 1)
+                  );
+                }
+              }}
+              className="previous"
+            >
+              {"< Previous"}
+            </button>
+
+            <button
+              onClick={() => {
+                if (isNextPossible) {
+                  setLoading(true);
+                  setcurrentPage(currentPage + 1);
+                  router.push(
+                    "/dashboard/Admin/Giftcards?search=true&page=" +
+                      (parseInt(page) + 1)
+                  );
+                }
+              }}
+              className="next"
+            >
+              {"Next >"}
+            </button>
+          </Buttons>
+        )}
       </GiftCardsContainer>
     );
   }

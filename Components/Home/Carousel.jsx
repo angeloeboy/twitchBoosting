@@ -2,6 +2,7 @@ import { useEmblaCarousel } from "embla-carousel/react";
 import styled from "styled-components";
 import Image from "next/image";
 import userImg from "../../Images//user.jpg";
+import { useCallback, useEffect, useRef } from "react";
 const Div = styled.div`
   .embla {
     overflow: hidden;
@@ -43,6 +44,21 @@ const Review = styled.div`
 
 const Carousel = () => {
   const [emblaRef] = useEmblaCarousel();
+  const btnRef = useRef(null);
+
+  const [viewportRef, embla] = useEmblaCarousel({
+    loop: true,
+    skipSnaps: false,
+  });
+
+  // useEffect(() => {
+  //   setInterval(() => {
+  //     btnRef.current.handleClick();
+  //   }, 1000);
+  // }, []);
+
+  const scrollNext = useCallback(() => embla && embla.scrollNext(), [embla]);
+
   let reviews = [
     {
       Name: "John McQueen",
@@ -68,7 +84,7 @@ const Carousel = () => {
 
   return (
     <Div>
-      <div className="embla" ref={emblaRef}>
+      <div className="embla" ref={viewportRef}>
         <div className="embla__container">
           {reviews.map((review) => {
             return (
@@ -84,6 +100,9 @@ const Carousel = () => {
             );
           })}
         </div>
+        {/* <button ref={btnRef} onClick={scrollNext}>
+          next
+        </button> */}
       </div>
     </Div>
   );

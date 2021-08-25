@@ -171,7 +171,7 @@ let AddSubscriptionModal = ({ setaddsubsVisible, setSubsLength }) => {
     };
 
     fetch(
-      "https://easyviews.herokuapp.com/Api/v1/Staff/Subscriptions/View",
+      "https://easyviews.herokuapp.com/Api/v1/Staff/Subscriptions/View?page=1",
       requestOptions
     )
       .then((response) => response.json())

@@ -166,6 +166,12 @@ const Nav = () => {
                   <a>Faq</a>
                 </Link>
               </li>
+              <li>
+                {" "}
+                <Link href="/Tos">
+                  <a>Tos</a>
+                </Link>
+              </li>
             </ul>
           </div>
           <div className="button-containers">

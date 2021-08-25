@@ -115,16 +115,40 @@ const Order = styled.div`
   }
 `;
 
-let Orders = (props) => {
+const Buttons = styled.div`
+  justify-content: space-between;
+  display: flex;
+  margin-top: 20px;
+
+  button {
+    padding: 10px;
+    width: 100px;
+    border: 1px solid white;
+    background-color: transparent;
+    color: white;
+    cursor: pointer;
+  }
+
+  .previous {
+    opacity: ${(props) => (props.page === "1" ? 0.2 : 1)};
+  }
+
+  .next {
+    opacity: ${(props) => (props.isNextPossible ? 1 : 0.2)};
+  }
+`;
+
+let Orders = () => {
   const router = useRouter();
   const { page } = router.query;
 
   const [orders, setorders] = useState([]);
   const [isLoading, setLoading] = useState(true);
 
-  const [pageNumber, setpageNumber] = useState(1);
-
   const [error, seterror] = useState(true);
+
+  const [currentPage, setcurrentPage] = useState();
+  const [isNextPossible, setisNextPossible] = useState(false);
 
   useEffect(() => {
     if (router.isReady && !page) {
@@ -133,6 +157,7 @@ let Orders = (props) => {
 
     if (router.isReady && page !== undefined) {
       getOrders();
+      setcurrentPage(page);
     }
   }, [page]);
 
@@ -166,9 +191,48 @@ let Orders = (props) => {
           if (result.Response.length == 0) {
             router.push("/dashboard/Orders?page=1");
           }
+
           setorders([...result.Response]);
           seterror(false);
           console.log(result.Response.length);
+
+          if (result.Response.length === 30) {
+            setisNextPossible(true);
+          } else {
+            getSecondPageOrder();
+          }
+        }
+      })
+      .catch((error) => console.log("error", error));
+  };
+
+  let getSecondPageOrder = () => {
+    let cookie = localStorage.getItem("cookie");
+
+    var myHeaders = new Headers();
+    myHeaders.append("x-api-key", cookie);
+
+    var requestOptions = {
+      method: "GET",
+      headers: myHeaders,
+      redirect: "follow",
+    };
+
+    fetch(
+      "https://easyviews.herokuapp.com/Api/v1/Users/Order/View?Page=" +
+        page +
+        1,
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        if (result.Error == 0) {
+          if (result.Response.length === 0) {
+            setisNextPossible(false);
+            console.log("not possible");
+          } else {
+            console.log(" possible");
+          }
         }
       })
       .catch((error) => console.log("error", error));
@@ -191,24 +255,6 @@ let Orders = (props) => {
             <p>Loading...</p>
           </div>
         </OrderContainer>
-
-        <button
-          onClick={() => {
-            setLoading(true);
-            router.push("/dashboard/Orders?page=" + (parseInt(page) - 1));
-          }}
-        >
-          Prev
-        </button>
-
-        <button
-          onClick={() => {
-            setLoading(true);
-            router.push("/dashboard/Orders?page=" + (parseInt(page) + 1));
-          }}
-        >
-          next
-        </button>
       </div>
     );
   } else {
@@ -284,23 +330,34 @@ let Orders = (props) => {
             </div>
           </div>
         </OrderContainer>
-        <button
-          onClick={() => {
-            setLoading(true);
-            router.push("/dashboard/Orders?page=" + (parseInt(page) - 1));
-          }}
-        >
-          Prev
-        </button>
 
-        <button
-          onClick={() => {
-            setLoading(true);
-            router.push("/dashboard/Orders?page=" + (parseInt(page) + 1));
-          }}
-        >
-          next
-        </button>
+        <Buttons page={currentPage} isNextPossible={isNextPossible}>
+          <button
+            onClick={() => {
+              if (page !== "1") {
+                setLoading(true);
+                setcurrentPage(currentPage - 1);
+                router.push("/dashboard/Orders?page=" + (parseInt(page) - 1));
+              }
+            }}
+            className="previous"
+          >
+            {"< Previous"}
+          </button>
+
+          <button
+            onClick={() => {
+              if (orders.length == "30") {
+                setLoading(true);
+                setcurrentPage(currentPage + 1);
+                router.push("/dashboard/Orders?page=" + (parseInt(page) + 1));
+              }
+            }}
+            className="next"
+          >
+            {"Next >"}
+          </button>
+        </Buttons>
       </div>
     );
   }

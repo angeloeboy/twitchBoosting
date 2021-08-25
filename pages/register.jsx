@@ -6,6 +6,7 @@ import Link from "next/link";
 import { uid, suid } from "rand-token";
 import { motion } from "framer-motion";
 import Head from "next/head";
+import logo from "../Images/logo.png";
 
 import loadingImg from "../Images/loading.gif";
 import { useRouter } from "next/router";
@@ -25,6 +26,10 @@ const Div = styled.div`
       position: absolute;
       bottom: 100px;
       width: 70%;
+
+      img {
+        cursor: pointer;
+      }
     }
   }
 
@@ -82,7 +87,7 @@ const Div = styled.div`
           background-color: #192377;
           font-weight: bold;
           transition: all 0.4s ease;
-
+          margin-top: 20px;
           &:hover {
             background-color: #2332bd;
           }
@@ -94,8 +99,10 @@ const Div = styled.div`
 
           .spinner {
             width: 30px;
-            margin: 0 auto;
+            margin-left: auto;
+            margin-right: auto;
             padding-top: 8px;
+
             * {
               margin: 0px;
               padding: 0px;
@@ -104,7 +111,15 @@ const Div = styled.div`
         }
 
         .error {
-          color: red;
+          color: white;
+          background-color: #ff000081;
+          padding: 15px;
+        }
+
+        .success {
+          color: #444444;
+          background-color: #00ff4081;
+          padding: 15px;
         }
       }
     }
@@ -153,97 +168,12 @@ let Register = () => {
     setloading(false);
   }, [registerError, error]);
 
-  // useEffect(() => {
-  //   if (!emailError && !passError && loaded) {
-  //     // setregReady(true);
-
-  //     setloading(true);
-
-  //     // if (regReady) {
-  //     let myHeaders = new Headers();
-  //     myHeaders.append("Content-Type", "application/json");
-
-  //     let raw = JSON.stringify({
-  //       Email: email,
-  //       Password: password,
-  //       Token: uid(12),
-  //     });
-
-  //     let requestOptions = {
-  //       method: "POST",
-  //       headers: myHeaders,
-  //       body: raw,
-  //       redirect: "follow",
-  //     };
-
-  //     fetch(
-  //       "https://easyviews.herokuapp.com/Api/v1/Account/Register",
-  //       requestOptions
-  //     )
-  //       .then((response) => response.json())
-  //       .then((result) => {
-  //         console.log(result);
-  //         console.log(result.Error);
-
-  //         if (result.Error > 0) {
-  //           seterror(result.ErrorMessage);
-  //           setregisterError(true);
-  //         }
-  //       })
-  //       .catch((error) => console.log("error", error));
-  //     // }
-  //   } else {
-  //     setregReady(false);
-  //   }
-  // }, [emailError, passError, regReady, loaded]);
-
-  // useEffect(() => {
-  //   if (regReady) {
-  //     console.log(regReady);
-  // setloading(true);
-  // let myHeaders = new Headers();
-  // myHeaders.append("Content-Type", "application/json");
-
-  // let raw = JSON.stringify({
-  //   Email: email,
-  //   Password: password,
-  //   Token: uid(12),
-  // });
-
-  // let requestOptions = {
-  //   method: "POST",
-  //   headers: myHeaders,
-  //   body: raw,
-  //   redirect: "follow",
-  // };
-
-  // fetch(
-  //   "https://easyviews.herokuapp.com/Api/v1/Account/Register",
-  //   requestOptions
-  // )
-  //   .then((response) => response.json())
-  //   .then((result) => {
-  //     console.log(result);
-  //     console.log(result.Error);
-
-  //     if (result.Error > 0) {
-  //       seterror(result.ErrorMessage);
-  //       setregisterError(true);
-  //       setregReady(false);
-  //     } else {
-  //       setloading(false);
-  //     }
-  //   })
-  //   .catch((error) => console.log("error", error));
-  //   }
-  // }, [regReady]);
-
   let handleSubmit = (e) => {
     e.preventDefault();
     setloaded(true);
     setpassError(false);
     setemailError(false);
-    seterror(false);
+    seterror("");
 
     if (password != repeatPass) {
       setpassError(true);
@@ -360,6 +290,9 @@ let Register = () => {
           <Image src={stars} alt="Stars" />
         </div>
         <div className="texts">
+          <Link href={"/"} className="logo">
+            <Image src={logo} />
+          </Link>
           <h1>Welcome Back!</h1>
           <p>
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vitae
@@ -422,20 +355,6 @@ let Register = () => {
                 />
               </label>
 
-              <p className="error">
-                {passError ? "Password doesn't match" : ""}
-              </p>
-
-              <p className="error">
-                {emailError ? "Please input a valid email" : ""}
-              </p>
-
-              {registerSuccess && (
-                <p>Register Success! You will be redirected in login.</p>
-              )}
-
-              <p className="error">{error}</p>
-
               <div className="submit">
                 {loading ? (
                   <div className="spinner">
@@ -445,6 +364,20 @@ let Register = () => {
                   <input type="submit" value="Sign up" />
                 )}
               </div>
+
+              {passError && <p className="error">{"Password doesn't match"}</p>}
+
+              {emailError && (
+                <p className="error">{"Please input a valid email"}</p>
+              )}
+
+              {registerSuccess && (
+                <p className="success">
+                  Register Success! You will be redirected in login.
+                </p>
+              )}
+
+              {error !== "" && <p className="error">{error}</p>}
             </form>
             <p>
               Already have an account?{" "}

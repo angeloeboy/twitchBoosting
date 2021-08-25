@@ -66,7 +66,9 @@ const OrderContainer = styled.div`
     display: flex;
     align-items: center;
     padding-bottom: 10px;
-
+    img {
+      cursor: pointer;
+    }
     input {
       background-color: transparent;
       border: none;
@@ -176,6 +178,29 @@ const Order = styled.div`
   }
 `;
 
+const Buttons = styled.div`
+  justify-content: space-between;
+  display: flex;
+  margin-top: 20px;
+
+  button {
+    padding: 10px;
+    width: 100px;
+    border: 1px solid white;
+    background-color: transparent;
+    color: white;
+    cursor: pointer;
+  }
+
+  .previous {
+    opacity: ${(props) => (props.page === "1" ? 0.2 : 1)};
+  }
+
+  .next {
+    opacity: ${(props) => (props.isNextPossible ? 1 : 0.2)};
+  }
+`;
+
 let Orders = (props) => {
   const router = useRouter();
   const { page, search } = router.query;
@@ -191,30 +216,35 @@ let Orders = (props) => {
   const [searchedOrder, setsearchedOrder] = useState("");
   const [searchResult, setSearchResult] = useState([]);
 
+  const [currentPage, setcurrentPage] = useState();
+  const [isNextPossible, setisNextPossible] = useState(false);
+
+  // Get orders on load
   useEffect(() => {
-    if (router.isReady && page !== undefined) {
-      getOrders();
-      console.log("page");
+    if (router.isReady) {
+      setLoading(true);
+      if (search == undefined) {
+        getOrders();
+        setcurrentPage(page);
+        setsearchedOrder("");
+      } else {
+        console.log(search);
+        setsearchedOrder(search);
+
+        searchOrder();
+
+        setcurrentPage(page);
+      }
+
+      if (page == undefined && search == undefined) {
+        router.push("/dashboard/Admin/Orders?page=1");
+      }
+
+      console.log("ready");
     }
   }, [page, search]);
 
-  useEffect(() => {
-    if (searchedOrder != "") {
-      router.push("/dashboard/Admin/Orders?search=true&page=1");
-      searchOrder();
-    } else {
-      router.push("/dashboard/Admin/Orders?page=1");
-    }
-  }, [searchedOrder, search]);
-
-  // useEffect(() => {
-  //   if (orders.length > 0 || !error) {
-  //     setLoading(false);
-  //   } else {
-  //     setLoading(true);
-  //   }
-  // }, [orders, error]);
-
+  //Filter the page depending on choices
   useEffect(() => {
     if (Object.keys(orders).length != 0) {
       let arr = [];
@@ -239,7 +269,16 @@ let Orders = (props) => {
       setSearchResult(result);
       setLoading(false);
     }
-  }, [orders, searchedOrder, seeOpen, seeCompleted]);
+  }, [orders, seeOpen, seeCompleted]);
+
+  let searchFunc = () => {
+    if (searchedOrder != "") {
+      router.push(
+        "/dashboard/Admin/Orders?search=" + searchedOrder + "&page=1"
+      );
+      searchOrder();
+    }
+  };
 
   let searchOrder = () => {
     let cookie = localStorage.getItem("cookie");
@@ -253,17 +292,77 @@ let Orders = (props) => {
       redirect: "follow",
     };
 
+    //Check if search is
+    if (search !== undefined && search !== "") {
+      fetch(
+        "https://easyviews.herokuapp.com/Api/v1/Staff/Orders/Search?SearchTerm=" +
+          search +
+          "&Page=" +
+          page,
+        requestOptions
+      )
+        .then((response) => response.json())
+        .then((result) => {
+          console.log("first pge");
+          console.log(
+            "https://easyviews.herokuapp.com/Api/v1/Staff/Orders/Search?SearchTerm=" +
+              search +
+              "&Page=" +
+              page
+          );
+
+          if (result.Error == 0) {
+            setorders(result.Response);
+            seterror(false);
+
+            if (
+              result.Response.Completed.length + result.Response.Open.length <
+              30
+            ) {
+              setisNextPossible(false);
+            } else {
+              searchOrderNextPage(requestOptions);
+            }
+
+            if (
+              result.Response.Completed.length + result.Response.Open.length ==
+              0
+            ) {
+              router.push(
+                "/dashboard/Admin/Orders?search=" + search + "&page=1"
+              );
+            }
+          }
+        })
+        .catch((error) => console.log("error", error));
+    }
+  };
+
+  let searchOrderNextPage = (requestOptions) => {
+    let num = parseInt(page) + 1;
+    let word = num.toString();
+
     fetch(
       "https://easyviews.herokuapp.com/Api/v1/Staff/Orders/Search?SearchTerm=" +
-        searchedOrder +
+        search +
         "&Page=" +
-        page,
+        word,
       requestOptions
     )
       .then((response) => response.json())
       .then((result) => {
-        setorders(result.Response);
-        console.log("searched");
+        console.log("nextPAge");
+
+        if (result.Error == 0) {
+          if (
+            result.Response.Completed.length + result.Response.Open.length ==
+            0
+          ) {
+            setisNextPossible(false);
+          } else {
+            setisNextPossible(true);
+          }
+        }
       })
       .catch((error) => console.log("error", error));
   };
@@ -286,10 +385,48 @@ let Orders = (props) => {
     )
       .then((response) => response.json())
       .then((result) => {
-        setorders(result.Response);
-
         if (result.Error == 0) {
+          setorders(result.Response);
           seterror(false);
+          console.log(page);
+          if (
+            result.Response.Completed.length + result.Response.Open.length <
+            30
+          ) {
+            setisNextPossible(false);
+          } else {
+            getOrdersNextPage(requestOptions);
+          }
+
+          if (
+            result.Response.Completed.length + result.Response.Open.length ==
+            0
+          ) {
+            router.push("/dashboard/Admin/Orders?page=1");
+          }
+        }
+      })
+      .catch((error) => console.log("error", error));
+  };
+
+  let getOrdersNextPage = (requestOptions) => {
+    let num = parseInt(page) + 1;
+    let word = num.toString();
+    fetch(
+      "https://easyviews.herokuapp.com/Api/v1/Staff/Orders/View?Page=" + word,
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        if (result.Error == 0) {
+          if (
+            result.Response.Completed.length + result.Response.Open.length ==
+            0
+          ) {
+            setisNextPossible(false);
+          } else {
+            setisNextPossible(true);
+          }
         }
       })
       .catch((error) => console.log("error", error));
@@ -326,6 +463,7 @@ let Orders = (props) => {
               onChange={(e) => {
                 setsearchedOrder(e.target.value);
               }}
+              disabled
               placeholder="Type Order ID or Email"
             />
           </div>
@@ -366,13 +504,16 @@ let Orders = (props) => {
 
           <div className="search-bar">
             <div>
-              <Image src={searchIcon} />
+              <Image src={searchIcon} onClick={() => searchFunc()} />
             </div>
             <input
               type="text"
               value={searchedOrder}
               onChange={(e) => {
                 setsearchedOrder(e.target.value);
+                if (e.target.value == "") {
+                  router.push("/dashboard/Admin/Orders?page=1");
+                }
               }}
               placeholder="Type Order ID or Email"
             />
@@ -389,7 +530,7 @@ let Orders = (props) => {
             {error && <p>No orders found</p>}
 
             <div className="orders">
-              {searchResult.map((order) => {
+              {searchResult.map((order, index) => {
                 return (
                   // eslint-disable-next-line react/jsx-key
                   <motion.div
@@ -411,7 +552,10 @@ let Orders = (props) => {
                     <Link href={"/dashboard/Admin/Orders/" + order._id}>
                       <Order order={order}>
                         <div className="id">
-                          <p>{order._id}</p>
+                          <p>
+                            {" "}
+                            {index + 1}: {order._id}
+                          </p>
                         </div>
                         <p className="email">{order.Email}</p>
 
@@ -441,41 +585,77 @@ let Orders = (props) => {
           </div>
         </OrderContainer>
 
-        <button
-          onClick={() => {
-            setLoading(true);
-            if (search) {
-              router.push(
-                "/dashboard/Admin/Orders?search=true&page=" +
-                  (parseInt(page) - 1)
-              );
-            } else {
-              router.push(
-                "/dashboard/Admin/Orders?page=" + (parseInt(page) - 1)
-              );
-            }
-          }}
-        >
-          Prev
-        </button>
+        {searchedOrder == "" ? (
+          <Buttons page={currentPage} isNextPossible={isNextPossible}>
+            <button
+              onClick={() => {
+                if (page !== "1") {
+                  setLoading(true);
+                  setcurrentPage(currentPage - 1);
+                  router.push(
+                    "/dashboard/Admin/Orders?page=" + (parseInt(page) - 1)
+                  );
+                }
+              }}
+              className="previous"
+            >
+              {"< Previous"}
+            </button>
 
-        <button
-          onClick={() => {
-            setLoading(true);
-            if (search) {
-              router.push(
-                "/dashboard/Admin/Orders?search=true&page=" +
-                  (parseInt(page) + 1)
-              );
-            } else {
-              router.push(
-                "/dashboard/Admin/Orders?page=" + (parseInt(page) + 1)
-              );
-            }
-          }}
-        >
-          next
-        </button>
+            <button
+              onClick={() => {
+                if (isNextPossible) {
+                  setLoading(true);
+                  setcurrentPage(currentPage + 1);
+                  router.push(
+                    "/dashboard/Admin/Orders?page=" + (parseInt(page) + 1)
+                  );
+                }
+              }}
+              className="next"
+            >
+              {"Next >"}
+            </button>
+          </Buttons>
+        ) : (
+          <Buttons page={currentPage} isNextPossible={isNextPossible}>
+            <button
+              onClick={() => {
+                if (page !== "1") {
+                  setLoading(true);
+                  setcurrentPage(currentPage - 1);
+                  router.push(
+                    "/dashboard/Admin/Orders?search=" +
+                      search +
+                      "&page=" +
+                      (parseInt(page) - 1)
+                  );
+                }
+              }}
+              className="previous"
+            >
+              {"< Previous"}
+            </button>
+
+            <button
+              onClick={() => {
+                if (isNextPossible) {
+                  setLoading(true);
+                  setcurrentPage(currentPage + 1);
+                  router.push(
+                    "/dashboard/Admin/Orders?search=" +
+                      search +
+                      "&page=" +
+                      (parseInt(page) + 1)
+                  );
+                }
+              }}
+              className="next"
+            >
+              {"Next >"}
+            </button>
+          </Buttons>
+        )}
       </div>
     );
   }
