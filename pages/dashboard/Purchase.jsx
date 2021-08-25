@@ -45,6 +45,27 @@ const Div = styled.div`
         padding: 0px 10px;
       }
     }
+
+    .error {
+      color: white;
+      background-color: #ff000081;
+      padding: 15px;
+      margin-top: 10px;
+      max-width: 400px;
+      text-align: center;
+      width: 100%;
+    }
+
+    .success {
+      color: #fff;
+      background-color: #00ff4081;
+      padding: 15px;
+      margin-top: 10px;
+      text-align: center;
+      max-width: 400px;
+      width: 100%;
+    }
+
     @media (max-width: 450px) {
       .input {
         flex-flow: column;
@@ -105,10 +126,18 @@ let Purchase = (props) => {
   const [data, setData, updateProfileData] = useContext(MenuContext);
 
   const [successful, setsuccessful] = useState(false);
+  const [error, seterror] = useState(false);
 
   useEffect(() => {
     getSubscriptions();
   }, []);
+
+  useEffect(() => {
+    if (code == "") {
+      setsuccessful(false);
+      seterror(false);
+    }
+  }, [code]);
 
   let getSubscriptions = () => {
     let cookie = localStorage.getItem("cookie");
@@ -135,7 +164,8 @@ let Purchase = (props) => {
   let redeemCode = (e) => {
     e.preventDefault();
     let cookie = localStorage.getItem("cookie");
-
+    seterror(false);
+    setsuccessful(false);
     var myHeaders = new Headers();
     myHeaders.append("x-api-key", cookie);
     myHeaders.append("Content-Type", "application/json");
@@ -157,9 +187,20 @@ let Purchase = (props) => {
     )
       .then((response) => response.json())
       .then((result) => {
-        console.log(result.Response);
-        setsuccessful(true);
-        updateProfileData();
+        console.log(result);
+        if (result.Error == 0) {
+          if (
+            result.Response === "GiftCard has been deleted or does not exist!"
+          ) {
+            seterror(true);
+          } else {
+            setsuccessful(true);
+            updateProfileData();
+            seterror(false);
+          }
+        } else {
+          seterror(true);
+        }
       })
       .catch((error) => console.log("error", error));
   };
@@ -291,7 +332,8 @@ let Purchase = (props) => {
           <button onClick={(e) => redeemCode(e)}>Redeem</button>
         </div>
 
-        {successful && <p>Success</p>}
+        {successful && <p className="success">Code redeem success</p>}
+        {error && <p className="error">Code is invalid</p>}
       </div>
     </Div>
   );

@@ -552,10 +552,7 @@ let Orders = (props) => {
                     <Link href={"/dashboard/Admin/Orders/" + order._id}>
                       <Order order={order}>
                         <div className="id">
-                          <p>
-                            {" "}
-                            {index + 1}: {order._id}
-                          </p>
+                          <p>{order._id}</p>
                         </div>
                         <p className="email">{order.Email}</p>
 
