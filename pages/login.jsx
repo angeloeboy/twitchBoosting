@@ -165,13 +165,6 @@ let Login = () => {
   const router = useRouter();
 
   useEffect(() => {
-    console.log(
-      sessionStorage.getItem("fromRegister") === null ||
-        sessionStorage.getItem("fromRegister") !== "true"
-        ? "wlang lamang"
-        : "may laman "
-    );
-
     if (
       localStorage.getItem("cookie") !== null &&
       localStorage.getItem("cookie") !== "" &&
