@@ -2,7 +2,7 @@ import { useEmblaCarousel } from "embla-carousel/react";
 import styled from "styled-components";
 import Image from "next/image";
 import userImg from "../../Images//user.jpg";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 const Div = styled.div`
   .embla {
     overflow: hidden;
@@ -44,20 +44,56 @@ const Review = styled.div`
 
 const Carousel = () => {
   const [emblaRef] = useEmblaCarousel();
-  const btnRef = useRef(null);
+  const btnRef = useRef("");
 
   const [viewportRef, embla] = useEmblaCarousel({
     loop: true,
     skipSnaps: false,
   });
 
-  // useEffect(() => {
-  //   setInterval(() => {
-  //     btnRef.current.handleClick();
-  //   }, 1000);
-  // }, []);
+  const [prevBtnEnabled, setPrevBtnEnabled] = useState(false);
+  const [nextBtnEnabled, setNextBtnEnabled] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
 
+  const scrollPrev = useCallback(() => embla && embla.scrollPrev(), [embla]);
   const scrollNext = useCallback(() => embla && embla.scrollNext(), [embla]);
+
+  const [number, setNumber] = useState(1);
+
+  const onSelect = useCallback(() => {
+    if (!embla) return;
+    setPrevBtnEnabled(embla.canScrollPrev());
+    setNextBtnEnabled(embla.canScrollNext());
+  }, [embla]);
+
+  const onScroll = useCallback(() => {
+    if (!embla) return;
+    const progress = Math.max(0, Math.min(1, embla.scrollProgress()));
+    setScrollProgress(progress * 100);
+  }, [embla, setScrollProgress]);
+
+  useEffect(() => {
+    if (!embla) return;
+    onSelect();
+    onScroll();
+    embla.on("select", onSelect);
+    embla.on("scroll", onScroll);
+
+    // Start scrolling slowly
+    const engine = embla.dangerouslyGetEngine();
+    engine.scrollBody.useSpeed(1);
+    setTimeout(() => {
+      console.log("test");
+    }, 100);
+    engine.scrollTo.index(embla.scrollSnapList().length + number);
+  }, [embla, onSelect, onScroll, number]);
+
+  useEffect(() => {
+    setTimeout(() => {
+      console.log(number + 1);
+      setNumber(number + 1);
+    }, 5000);
+  }, [number]);
 
   let reviews = [
     {
@@ -100,9 +136,6 @@ const Carousel = () => {
             );
           })}
         </div>
-        {/* <button ref={btnRef} onClick={scrollNext}>
-          next
-        </button> */}
       </div>
     </Div>
   );
