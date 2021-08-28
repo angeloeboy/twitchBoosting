@@ -239,25 +239,14 @@ let Subscriptions = () => {
   const [currentPage, setcurrentPage] = useState();
   const [isNextPossible, setisNextPossible] = useState(true);
 
-  // useEffect(() => {
-  //   if (router.isReady && page !== undefined) {
-  //     if (search != "true") {
-  //       getSubscriptions();
-  //     } else {
-  //       console.log("page changed");
-  //       searchSubscription();
-  //     }
-
-  //     setcurrentPage(page);
-  //   }
-  // }, [page, search, deletedSubs, subsLength]);
-
   useEffect(() => {
     if (router.isReady) {
       if (search == undefined) {
-        getSubscriptions();
-        setcurrentPage(page);
-        setsearchedSubscription("");
+        if (page != undefined) {
+          getSubscriptions();
+          setcurrentPage(page);
+          setsearchedSubscription("");
+        }
       } else {
         console.log(search);
         setsearchedSubscription(search);

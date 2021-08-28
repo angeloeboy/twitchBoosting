@@ -60,6 +60,7 @@ let MainDashboard = ({ children }) => {
 
   useEffect(() => {
     let cookie = localStorage.getItem("cookie");
+    setvisible(false);
 
     if (sessionStorage.getItem("loggedIn") == null) {
       if (cookie == null) {

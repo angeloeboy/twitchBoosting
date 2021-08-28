@@ -224,9 +224,11 @@ let Orders = (props) => {
     if (router.isReady) {
       setLoading(true);
       if (search == undefined) {
-        getOrders();
-        setcurrentPage(page);
-        setsearchedOrder("");
+        if (page != undefined) {
+          getOrders();
+          setcurrentPage(page);
+          setsearchedOrder("");
+        }
       } else {
         console.log(search);
         setsearchedOrder(search);

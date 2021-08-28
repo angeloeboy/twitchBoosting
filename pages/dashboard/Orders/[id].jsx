@@ -275,6 +275,7 @@ let Order = () => {
   const [isloading, setisloading] = useState(true);
   const [orderDetails, setorderDetails] = useState({});
   const [isOnline, setisOnline] = useState("");
+  const [changeSuccess, setchangeSuccess] = useState(true);
 
   //Get the max thread num
   const [maxDelay, setmaxDelay] = useState(0);
@@ -292,6 +293,9 @@ let Order = () => {
   const [settingsChanged, setsettingsChanged] = useState(false);
 
   const [messageListLink, setmessageListLink] = useState("");
+
+  const [delayDisabled, setdelayDisabled] = useState("");
+
   //Get the order data of individual orders based on the link
   useEffect(() => {
     if (id != undefined) {
@@ -308,6 +312,7 @@ let Order = () => {
       setmaxDelay(orderDetails.MaximumDelay);
       setminDelay(orderDetails.MinimumDelay);
       setthreads(orderDetails.Threads);
+      setdelayDisabled(!orderDetails.Online);
 
       if (orderDetails.ServiceType === "ChatBot") {
         setmessageListLink(orderDetails.ChatBotMessageList);
@@ -398,18 +403,52 @@ let Order = () => {
 
   let checkChangedSettings = () => {
     const regEx = new RegExp("^https://pastebin.com/raw/[a-zA-Z0-9_]{6,11}$");
+    const numRegEx = new RegExp("^0[0-9].*$");
 
-    if (
-      maxDelay != orderDetails.MaximumDelay ||
-      minDelay != orderDetails.MinimumDelay ||
-      threads != orderDetails.Threads ||
-      (messageListLink != orderDetails.ChatBotMessageList &&
-        regEx.test(messageListLink))
-    ) {
-      setsettingsChanged(true);
+    let minChanged = minDelay != orderDetails.MinimumDelay;
+    let maxChanged = maxDelay != orderDetails.MaximumDelay;
+    let threadsChanged = threads != orderDetails.Threads;
+    let messageListChanged = messageListLink != orderDetails.ChatBotMessageList;
+
+    let minDelayValid =
+      minDelay !== "" &&
+      +minDelay <= +maxDelay &&
+      !numRegEx.test(minDelay.toString());
+
+    let maxDelayValid =
+      maxDelay !== "" &&
+      +maxDelay >= +minDelay &&
+      !numRegEx.test(maxDelay.toString());
+
+    let messageListValid = regEx.test(messageListLink);
+    let threadsValid = threads != "" && !numRegEx.test(threads.toString());
+
+    if (orderDetails.ChatBotMessageList == undefined) {
+      if (
+        (minChanged || maxChanged || threadsChanged) &&
+        minDelayValid &&
+        maxDelayValid &&
+        threadsValid
+      ) {
+        setsettingsChanged(true);
+      } else {
+        setsettingsChanged(false);
+      }
     } else {
-      setsettingsChanged(false);
+      if (
+        (minChanged || maxChanged || threadsChanged || messageListChanged) &&
+        minDelayValid &&
+        maxDelayValid &&
+        threadsValid &&
+        messageListValid
+      ) {
+        setsettingsChanged(true);
+      } else {
+        setsettingsChanged(false);
+      }
     }
+
+    // console.log(threadsChanged);
   };
 
   let handleMaxDelay = (e) => {
@@ -421,7 +460,6 @@ let Order = () => {
 
   let handleMinDelay = (e) => {
     let min = e.target.value;
-
     setminDelay(min);
     checkChangedSettings();
     setupdateSuccess(false);
@@ -430,9 +468,11 @@ let Order = () => {
   let handleThreads = (e) => {
     let thread = e.target.value;
 
-    setthreads(thread);
-    checkChangedSettings();
-    setupdateSuccess(false);
+    if (thread <= orderDetails.MaxThreads) {
+      setthreads(thread);
+      checkChangedSettings();
+      setupdateSuccess(false);
+    }
   };
 
   let handleMessageList = (e) => {
@@ -447,6 +487,7 @@ let Order = () => {
   };
 
   let sendOrderConfig = () => {
+    setchangeSuccess(false);
     let cookie = localStorage.getItem("cookie");
 
     var myHeaders = new Headers();
@@ -457,20 +498,33 @@ let Order = () => {
 
     if (typeof orderDetails.Threads != "undefined") {
       if (orderDetails.ServiceType == "ChatBot") {
-        raw = JSON.stringify({
-          Threads: threads,
-          MinimumDelay: minDelay,
-          MaximumDelay: maxDelay,
-          ChatBotMessageList: messageListLink,
-        });
+        if (orderDetails.Online) {
+          raw = JSON.stringify({
+            Threads: threads,
+            ChatBotMessageList: messageListLink,
+          });
+        } else {
+          raw = JSON.stringify({
+            Threads: threads,
+            MinimumDelay: minDelay,
+            MaximumDelay: maxDelay,
+            ChatBotMessageList: messageListLink,
+          });
+        }
 
         console.log(raw);
       } else {
-        raw = JSON.stringify({
-          Threads: threads,
-          MinimumDelay: minDelay,
-          MaximumDelay: maxDelay,
-        });
+        if (orderDetails.Online) {
+          raw = JSON.stringify({
+            Threads: threads,
+          });
+        } else {
+          raw = JSON.stringify({
+            Threads: threads,
+            MinimumDelay: minDelay,
+            MaximumDelay: maxDelay,
+          });
+        }
       }
     } else {
       raw = JSON.stringify({
@@ -495,7 +549,9 @@ let Order = () => {
         console.log(result);
 
         if (result.Error != 0) {
+          setchangeSuccess(true);
           setupdateSuccess(true);
+          setsettingsChanged(false);
         }
       })
       .catch((error) => console.log("error", error));
@@ -696,7 +752,26 @@ let Order = () => {
                 followers with a “delay max” of 10 minutes will take up to 250
                 minutes.{" "}
               </p>
+
+              {orderDetails.Online && (
+                <p style={{ marginTop: "20px", fontWeight: "bold" }}>
+                  Set the order to offline to change the delay values
+                </p>
+              )}
               <div className="delay">
+                <label>
+                  Minimum Delay:
+                  <input
+                    type="number"
+                    min="0"
+                    max={maxDelay == 0 ? 0 : maxDelay - 1}
+                    onChange={(e) => handleMinDelay(e)}
+                    value={minDelay}
+                    placeholder="Must be lower or equal than maximum delay"
+                    disabled={orderDetails.Online}
+                  />
+                </label>
+
                 <label>
                   Maximum Delay:
                   <input
@@ -704,17 +779,7 @@ let Order = () => {
                     min="1"
                     onChange={(e) => handleMaxDelay(e)}
                     value={maxDelay}
-                  />
-                </label>
-
-                <label>
-                  Minimum Delay:
-                  <input
-                    type="number"
-                    min="0"
-                    max={maxDelay - 1}
-                    onChange={(e) => handleMinDelay(e)}
-                    value={minDelay}
+                    disabled={orderDetails.Online}
                   />
                 </label>
 
@@ -727,6 +792,7 @@ let Order = () => {
                       max="100"
                       value={threads}
                       onChange={(e) => handleThreads(e)}
+                      placeholder={"Max is " + orderDetails.MaxThreads}
                     />
                   </label>
                 )}
@@ -793,15 +859,15 @@ let Order = () => {
               <TopNotification text="Settings succesfully changed." />
             </>
           )}
-
-          <button
-            className="save"
-            onClick={() => sendOrderConfig()}
-            style={settingsChanged ? { opacity: "1" } : { opacity: "0" }}
-          >
-            {" "}
-            Save{" "}
-          </button>
+          {settingsChanged && (
+            <button
+              className="save"
+              onClick={() => sendOrderConfig()}
+              style={settingsChanged ? { opacity: "1" } : { opacity: "0" }}
+            >
+              {changeSuccess ? "Save" : "Loading..."}
+            </button>
+          )}
         </div>
       </OrderContainer>
 

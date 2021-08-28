@@ -186,9 +186,11 @@ let Customers = () => {
       setloaded(false);
 
       if (search == undefined) {
-        getCustomers();
-        setcurrentPage(page);
-        setSearchedCustomer("");
+        if (page != undefined) {
+          getCustomers();
+          setcurrentPage(page);
+          setSearchedCustomer("");
+        }
       } else {
         console.log(search);
         setSearchedCustomer(search);

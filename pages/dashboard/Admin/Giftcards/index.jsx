@@ -244,9 +244,11 @@ let GiftCards = () => {
   useEffect(() => {
     if (router.isReady) {
       if (search == undefined) {
-        getGiftCards();
-        setcurrentPage(page);
-        setsearchedGiftCard("");
+        if (page != undefined) {
+          getGiftCards();
+          setcurrentPage(page);
+          setsearchedGiftCard("");
+        }
       } else {
         console.log(search);
         setsearchedGiftCard(search);
