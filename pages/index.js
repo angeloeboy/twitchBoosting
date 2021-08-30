@@ -9,11 +9,19 @@ import Pricing from './../Components/Home/Pricing';
 import Feedback from './../Components/Home/Feedbacks';
 import Footer from '../Components/Home/Footer';
 
-
+import tawkTo from "tawkto-react";
+import { useEffect } from 'react';
 
 
 
 export default function Home() {
+  const tawkToPropertyId = '612c7752d6e7610a49b2a468'
+  const tawkToKey = '059bcfd62e4f34471dea3fe7814caf25d8870d7d'
+
+  useEffect(() => {
+    tawkTo(tawkToPropertyId, tawkToKey)
+  }, [])
+
   return (
     <>
 
