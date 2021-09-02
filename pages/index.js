@@ -9,28 +9,17 @@ import Pricing from './../Components/Home/Pricing';
 import Feedback from './../Components/Home/Feedbacks';
 import Footer from '../Components/Home/Footer';
 
-// import tawkTo from "tawkto-react";
+import tawkTo from "tawkto-react";
 import { useEffect } from 'react';
 
 
 
 export default function Home() {
-  // const tawkToPropertyId = '612c7752d6e7610a49b2a468'
-  // const tawkToKey = '059bcfd62e4f34471dea3fe7814caf25d8870d7d'
+  const tawkToPropertyId = '612f8bd5d6e7610a49b31cac'
+  const tawkToKey = '1fegrkeue'
 
   useEffect(() => {
-    // tawkTo(tawkToPropertyId, tawkToKey)
-
-    var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
-    (function(){
-    var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
-    s1.async=true;
-    s1.src='https://embed.tawk.to/612c7752d6e7610a49b2a468/1fear470q';
-    s1.charset='UTF-8';
-    s1.setAttribute('crossorigin','*');
-    s0.parentNode.insertBefore(s1,s0);
-    })();
-
+    tawkTo(tawkToPropertyId, tawkToKey)
   }, [])
 
   
