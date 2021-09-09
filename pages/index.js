@@ -13,7 +13,6 @@ import tawkTo from "tawkto-react";
 import { useEffect } from 'react';
 
 
-
 export default function Home() {
   const tawkToPropertyId = '612f8bd5d6e7610a49b31cac'
   const tawkToKey = '1fegrkeue'
@@ -22,7 +21,7 @@ export default function Home() {
     tawkTo(tawkToPropertyId, tawkToKey)
   }, [])
 
-  
+
 
   return (
     <>

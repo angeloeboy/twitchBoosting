@@ -13,6 +13,8 @@ import loadingImg from "../Images/loading.gif";
 
 import logo from "../Images/logo.png";
 
+import ReCAPTCHA from "react-google-recaptcha";
+
 const Div = styled.div`
   display: flex;
   .greetings {
@@ -191,65 +193,75 @@ let Login = () => {
     setloading(true);
     setErr(false);
 
-    if (!forgotPassVisible) {
-      let myHeaders = new Headers();
-      myHeaders.append("Content-Type", "application/json");
+    window.grecaptcha.ready(() => {
+      window.grecaptcha
+        .execute(SITE_KEY, { action: "submit" })
+        .then((token) => {
+          let gToken = token;
 
-      let raw = JSON.stringify({
-        Email: email,
-        Password: password,
-        Token: uid(12),
-      });
+          if (!forgotPassVisible) {
+            let myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
 
-      let requestOptions = {
-        method: "POST",
-        headers: myHeaders,
-        body: raw,
-        redirect: "follow",
-      };
+            let raw = JSON.stringify({
+              Email: email,
+              Password: password,
+              Token: gToken,
+            });
 
-      fetch(
-        "https://easyviews.herokuapp.com/Api/v1/Account/Login",
-        requestOptions
-      )
-        .then((response) => response.json())
-        .then((result) => {
-          localStorage.setItem("cookie", result.Response);
-          let cookie = localStorage.getItem("cookie");
+            let requestOptions = {
+              method: "POST",
+              headers: myHeaders,
+              body: raw,
+              redirect: "follow",
+            };
 
-          if (result.Error == 0) {
-            getProfileData(cookie);
+            fetch(
+              "https://easyviews.herokuapp.com/Api/v1/Account/Login",
+              requestOptions
+            )
+              .then((response) => response.json())
+              .then((result) => {
+                console.log(gToken);
+                console.log(result.Response);
+
+                if (result.Error == 0) {
+                  localStorage.setItem("cookie", result.Response);
+                  let cookie = localStorage.getItem("cookie");
+                  getProfileData(cookie);
+                } else {
+                  setErr(true);
+                  setloading(false);
+                }
+              })
+              .catch((error) => console.log("error", error));
           } else {
-            setErr(true);
-            setloading(false);
+            var myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
+
+            var raw = JSON.stringify({
+              Email: email,
+            });
+
+            var requestOptions = {
+              method: "POST",
+              headers: myHeaders,
+              body: raw,
+              redirect: "follow",
+            };
+
+            fetch(
+              "https://easyviews.herokuapp.com/Api/v1/Account/ForgotPassword/SendReset",
+              requestOptions
+            )
+              .then((response) => response.text())
+              .then((result) => {
+                console.log(result);
+              })
+              .catch((error) => console.log("error", error));
           }
-        })
-        .catch((error) => console.log("error", error));
-    } else {
-      var myHeaders = new Headers();
-      myHeaders.append("Content-Type", "application/json");
-
-      var raw = JSON.stringify({
-        Email: email,
-      });
-
-      var requestOptions = {
-        method: "POST",
-        headers: myHeaders,
-        body: raw,
-        redirect: "follow",
-      };
-
-      fetch(
-        "https://easyviews.herokuapp.com/Api/v1/Account/ForgotPassword/SendReset",
-        requestOptions
-      )
-        .then((response) => response.text())
-        .then((result) => {
-          console.log(result);
-        })
-        .catch((error) => console.log("error", error));
-    }
+        });
+    });
   };
 
   let getProfileData = (cookie) => {
@@ -276,6 +288,40 @@ let Login = () => {
         }
       });
   };
+
+  function onChange(value) {
+    console.log("Captcha value:", value);
+  }
+
+  const SITE_KEY = "6LeXW08cAAAAAMLCOwashvflc-RqMvyfz3aAes3R";
+
+  useEffect(() => {
+    const loadScriptByURL = (id, url, callback) => {
+      const isScriptExist = document.getElementById(id);
+
+      if (!isScriptExist) {
+        var script = document.createElement("script");
+        script.type = "text/javascript";
+        script.src = url;
+        script.id = id;
+        script.onload = function () {
+          if (callback) callback();
+        };
+        document.body.appendChild(script);
+      }
+
+      if (isScriptExist && callback) callback();
+    };
+
+    // load the script by passing the URL
+    loadScriptByURL(
+      "recaptcha-key",
+      `https://www.google.com/recaptcha/api.js?render=${SITE_KEY}`,
+      function () {
+        console.log("Script loaded!");
+      }
+    );
+  }, []);
 
   return (
     <Div>
@@ -372,7 +418,7 @@ let Login = () => {
                       <Image src={loadingImg} alt="loading" />
                     </div>
                   ) : (
-                    <input type="submit" value="Sign up" />
+                    <input type="submit" value="Login" />
                   )}
                 </div>
 
