@@ -13,8 +13,6 @@ import loadingImg from "../Images/loading.gif";
 
 import logo from "../Images/logo.png";
 
-import ReCAPTCHA from "react-google-recaptcha";
-
 const Div = styled.div`
   display: flex;
   .greetings {
@@ -188,6 +186,8 @@ let Login = () => {
     setPassword(e.target.value);
   };
 
+  const SITE_KEY = "6LeXW08cAAAAAMLCOwashvflc-RqMvyfz3aAes3R";
+
   let handleSubmit = (e) => {
     e.preventDefault();
     setloading(true);
@@ -292,8 +292,6 @@ let Login = () => {
   function onChange(value) {
     console.log("Captcha value:", value);
   }
-
-  const SITE_KEY = "6LeXW08cAAAAAMLCOwashvflc-RqMvyfz3aAes3R";
 
   useEffect(() => {
     const loadScriptByURL = (id, url, callback) => {

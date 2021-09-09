@@ -163,6 +163,7 @@ let Register = () => {
   const [loading, setloading] = useState(false);
 
   const [registerSuccess, setregisterSuccess] = useState(false);
+  const SITE_KEY = "6LeXW08cAAAAAMLCOwashvflc-RqMvyfz3aAes3R";
 
   useEffect(() => {
     setloading(false);
@@ -189,6 +190,34 @@ let Register = () => {
   };
 
   useEffect(() => {
+    const loadScriptByURL = (id, url, callback) => {
+      const isScriptExist = document.getElementById(id);
+
+      if (!isScriptExist) {
+        var script = document.createElement("script");
+        script.type = "text/javascript";
+        script.src = url;
+        script.id = id;
+        script.onload = function () {
+          if (callback) callback();
+        };
+        document.body.appendChild(script);
+      }
+
+      if (isScriptExist && callback) callback();
+    };
+
+    // load the script by passing the URL
+    loadScriptByURL(
+      "recaptcha-key",
+      `https://www.google.com/recaptcha/api.js?render=${SITE_KEY}`,
+      function () {
+        console.log("Script loaded!");
+      }
+    );
+  }, []);
+
+  useEffect(() => {
     if (loaded) {
       if (!emailError && !passError) {
         setregReady(true);
@@ -204,49 +233,57 @@ let Register = () => {
       console.log(regReady);
       setloading(true);
 
-      let myHeaders = new Headers();
-      myHeaders.append("Content-Type", "application/json");
+      window.grecaptcha.ready(() => {
+        window.grecaptcha
+          .execute(SITE_KEY, { action: "submit" })
+          .then((token) => {
+            let gToken = token;
+            console.log(gToken);
+            let myHeaders = new Headers();
+            myHeaders.append("Content-Type", "application/json");
 
-      let raw = JSON.stringify({
-        Email: email,
-        Password: password,
-        Token: uid(12),
+            let raw = JSON.stringify({
+              Email: email,
+              Password: password,
+              Token: gToken,
+            });
+
+            let requestOptions = {
+              method: "POST",
+              headers: myHeaders,
+              body: raw,
+              redirect: "follow",
+            };
+
+            fetch(
+              "https://easyviews.herokuapp.com/Api/v1/Account/Register",
+              requestOptions
+            )
+              .then((response) => response.json())
+              .then((result) => {
+                console.log(result);
+                console.log(result.Error);
+
+                if (result.Error > 0) {
+                  seterror(result.ErrorMessage);
+                  setregisterError(true);
+                  setloaded(false);
+                  setregReady(false);
+                } else {
+                  setloading(false);
+                  seterror("");
+                  console.log("you will be redirected to login");
+                  setregisterSuccess(true);
+                  sessionStorage.setItem("fromRegister", "true");
+
+                  setTimeout(() => {
+                    router.push("/login");
+                  }, 3000);
+                }
+              })
+              .catch((error) => console.log("error", error));
+          });
       });
-
-      let requestOptions = {
-        method: "POST",
-        headers: myHeaders,
-        body: raw,
-        redirect: "follow",
-      };
-
-      fetch(
-        "https://easyviews.herokuapp.com/Api/v1/Account/Register",
-        requestOptions
-      )
-        .then((response) => response.json())
-        .then((result) => {
-          console.log(result);
-          console.log(result.Error);
-
-          if (result.Error > 0) {
-            seterror(result.ErrorMessage);
-            setregisterError(true);
-            setloaded(false);
-            setregReady(false);
-          } else {
-            setloading(false);
-            seterror("");
-            console.log("you will be redirected to login");
-            setregisterSuccess(true);
-            sessionStorage.setItem("fromRegister", "true");
-
-            setTimeout(() => {
-              router.push("/login");
-            }, 3000);
-          }
-        })
-        .catch((error) => console.log("error", error));
     } else {
       setloading(false);
     }
