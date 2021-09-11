@@ -116,10 +116,14 @@ const PaymentsContainer = styled.div`
     background-color: #203298;
     margin-right: 39px;
     padding: 21px;
-    /* margin-top: 42px; */
     margin-bottom: 30px;
     border-radius: 8px;
     max-width: 300px;
+
+    h1 {
+      font-size: 1.5rem;
+    }
+
     p {
       &:nth-child(2),
       &:nth-child(3) {
@@ -127,8 +131,11 @@ const PaymentsContainer = styled.div`
         margin-top: 5px;
       }
     }
+    .buttons {
+    }
 
-    .verify {
+    .verify,
+    .changePass {
       width: 100%;
       text-align: center;
       z-index: 999;
@@ -146,8 +153,29 @@ const PaymentsContainer = styled.div`
         color: white;
         font-size: 12px;
         width: 100%;
+        cursor: pointer;
+        transition: all 0.3s ease;
         &:hover {
           background-color: #ee3737;
+        }
+      }
+
+      input {
+        background-color: transparent;
+        border: 1px solid white;
+        color: white;
+        font-size: 12px;
+        width: 100%;
+
+        transition: all 0.3s ease;
+        padding: 10px;
+      }
+    }
+
+    .changePass {
+      button {
+        &:hover {
+          background-color: green;
         }
       }
     }
@@ -235,12 +263,46 @@ let Profile = () => {
   const [payments, setpayments] = useState([]);
   const [loading, setloading] = useState(true);
   const [userData, setUserData] = useState("");
+  const [changePassword, setchangePassword] = useState(false);
+  const [password, setpassword] = useState("");
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("userObject"));
     setpayments(user.PaymentHistory);
     setUserData(user);
     setloading(false);
   }, []);
+
+  let changePasswordFunc = () => {
+    let cookie = localStorage.getItem("cookie");
+
+    var myHeaders = new Headers();
+    myHeaders.append("x-api-key", cookie);
+
+    let raw = JSON.stringify({
+      Password: password,
+    });
+
+    let requestOptions = {
+      method: "POST",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow",
+    };
+
+    fetch(
+      "https://easyviews.herokuapp.com/Api/v1/Users/Account/UpdatePassword",
+      requestOptions
+    )
+      .then((response) => response.json())
+      .then((result) => {
+        console.log(result);
+
+        // setTimeout(() => {
+        //   setchangePassword(false);
+        // }, 1000);
+      })
+      .catch((error) => console.log("error", error));
+  };
 
   if (loading) {
     return (
@@ -268,24 +330,48 @@ let Profile = () => {
     return (
       <PaymentsContainer>
         <div className="account-details">
-          <p> Type: {userData.AccountType}</p>
-          <p>Credits: {userData.Credits}</p>
+          <div className="texts">
+            <h1>Account Details</h1>
+            <p> Type: {userData.AccountType}</p>
+            <p>Credits: {userData.Credits}</p>
+          </div>
 
-          {!userData.Verified && (
-            <div className="verify">
-              <p>Your account is unverified</p>
-              <button
-                onClick={() => {
-                  setTimeout(() => {
-                    setisNotVerifiedVisible(false);
-                  }, 1000);
-                  sendVerification();
-                }}
-              >
-                Send Verification
-              </button>
+          <div className="buttons">
+            {!userData.Verified && (
+              <div className="verify">
+                <p>Your account is unverified</p>
+                <button
+                  onClick={() => {
+                    setTimeout(() => {
+                      setisNotVerifiedVisible(false);
+                    }, 1000);
+                    sendVerification();
+                  }}
+                >
+                  Send Verification
+                </button>
+              </div>
+            )}
+
+            <div className="changePass">
+              {changePassword ? (
+                <>
+                  <input
+                    type="text"
+                    placeholder="Type password"
+                    onChange={(e) => setpassword(e.target.value)}
+                  />
+                  <button onClick={() => changePasswordFunc()}>
+                    Change Password
+                  </button>
+                </>
+              ) : (
+                <button onClick={() => setchangePassword(true)}>
+                  Change Password
+                </button>
+              )}
             </div>
-          )}
+          </div>
         </div>
 
         <div className="header">
