@@ -6,6 +6,7 @@ import Image from "next/image";
 import { AnimatePresence, motion } from "framer-motion";
 import TopNotification from "./../../../Components/Dashboard/TopNotification";
 import OrderLog from "./../../../Components/Dashboard/OrderLog";
+import RocketLoading from "./../../../Components/Dashboard/rocketLoading";
 
 const OrderContainer = styled.div`
   .arrow {
@@ -296,6 +297,11 @@ let Order = () => {
 
   const [delayDisabled, setdelayDisabled] = useState("");
 
+  const [clickedtoggleOnline, setclickedtoggleOnline] = useState({
+    clicked: false,
+    text: "Online",
+  });
+
   //Get the order data of individual orders based on the link
   useEffect(() => {
     if (id != undefined) {
@@ -385,6 +391,17 @@ let Order = () => {
         .then((result) => {
           console.log(result);
           setisOnline(false);
+          setclickedtoggleOnline({
+            clicked: true,
+            text: "Offline",
+          });
+
+          setTimeout(() => {
+            setclickedtoggleOnline({
+              clicked: false,
+              text: "Offline",
+            });
+          }, 1000);
         })
         .catch((error) => console.log("error", error));
     } else {
@@ -396,6 +413,17 @@ let Order = () => {
         .then((result) => {
           console.log(result);
           setisOnline(true);
+          setclickedtoggleOnline({
+            clicked: true,
+            text: "Online",
+          });
+
+          setTimeout(() => {
+            setclickedtoggleOnline({
+              clicked: false,
+              text: "Online",
+            });
+          }, 1000);
         })
         .catch((error) => console.log("error", error));
     }
@@ -404,7 +432,6 @@ let Order = () => {
   let checkChangedSettings = () => {
     const regEx = new RegExp("^https://pastebin.com/raw/[a-zA-Z0-9_]{6,11}$");
     const numRegEx = new RegExp("^0[0-9].*$");
-
     let minChanged = minDelay != orderDetails.MinimumDelay;
     let maxChanged = maxDelay != orderDetails.MaximumDelay;
     let threadsChanged = threads != orderDetails.Threads;
@@ -414,14 +441,18 @@ let Order = () => {
       minDelay !== "" &&
       +minDelay <= +maxDelay &&
       !numRegEx.test(minDelay.toString());
-
     let maxDelayValid =
       maxDelay !== "" &&
       +maxDelay >= +minDelay &&
       !numRegEx.test(maxDelay.toString());
-
     let messageListValid = regEx.test(messageListLink);
-    let threadsValid = threads != "" && !numRegEx.test(threads.toString());
+    let threadsValid;
+
+    if (orderDetails.ServiceType !== "FollowBot") {
+      threadsValid = threads != "" && !numRegEx.test(threads.toString());
+    } else {
+      threadsValid = true;
+    }
 
     if (orderDetails.ChatBotMessageList == undefined) {
       if (
@@ -447,8 +478,7 @@ let Order = () => {
         setsettingsChanged(false);
       }
     }
-
-    // console.log(threadsChanged);
+    console.log(threadsChanged);
   };
 
   let handleMaxDelay = (e) => {
@@ -481,9 +511,6 @@ let Order = () => {
     setmessageListLink(message);
     checkChangedSettings();
     setupdateSuccess(false);
-    // const regEx = new RegExp("^https://pastebin.com/raw/[a-zA-Z0-9_]{6,11}$");
-
-    // console.log(regEx.test(messageListLink));
   };
 
   let sendOrderConfig = () => {
@@ -587,116 +614,7 @@ let Order = () => {
           </div>
 
           <div className="main">
-            <p
-              className="status"
-              style={
-                orderDetails.Status == "Processing"
-                  ? { color: "#FD9A01" }
-                  : { color: "#209833" }
-              }
-            >
-              Loading
-            </p>
-
-            <div className="main-options">
-              <div className="delay-container box">
-                <p>
-                  Please use the sliders or the input boxes to change the delay
-                  between followers. The FollowerBot waits a random time between{" "}
-                  <span>delay min</span> and <span>delay max</span> per follow.
-                  25 followers with a “delay max” of 10 minutes will take up to
-                  250 minutes.{" "}
-                </p>
-                <div className="delay">
-                  <label>
-                    Maximum Delay:
-                    <input
-                      type="number"
-                      min="1"
-                      onChange={(e) => handleMaxDelay(e)}
-                      value={maxDelay}
-                    />
-                  </label>
-
-                  <label>
-                    Minimum Delay:
-                    <input
-                      type="number"
-                      min="0"
-                      max={maxDelay - 1}
-                      onChange={(e) => handleMinDelay(e)}
-                      value={minDelay}
-                    />
-                  </label>
-
-                  {typeof orderDetails.Threads != "undefined" && (
-                    <label>
-                      Threads
-                      <input
-                        type="number"
-                        min="1"
-                        max="100"
-                        value={threads}
-                        onChange={(e) => handleThreads(e)}
-                      />
-                    </label>
-                  )}
-                </div>
-              </div>
-
-              <div className="dates box">
-                <div className="twitch-name">
-                  <p>Twitch Name</p>
-                  <p>Loading</p>
-                </div>
-
-                <div className="startDate">
-                  <p>Start Date</p>
-                  <p>Loading</p>
-                </div>
-
-                <div className="endDate">
-                  <p>End Date</p>
-
-                  <p>Loading</p>
-                </div>
-              </div>
-
-              {orderDetails.ServiceType === "FollowBot" && (
-                <div className="delivered ">
-                  <div className="del box ">
-                    <p>Followers Delivered</p>
-                    <p className="num">Loading</p>
-                  </div>
-                  <div className="rec box">
-                    <p>Followers Requested</p>
-                    <p className="num">Loading</p>
-                  </div>
-                </div>
-              )}
-            </div>
-            <AnimatePresence>
-              {updateSuccess && (
-                <motion.div
-                  initial="hidden"
-                  animate="visible"
-                  exit={{ opacity: 0 }}
-                  variants={{
-                    hidden: {
-                      opacity: 0,
-                    },
-                    visible: {
-                      opacity: 1,
-                      transition: {
-                        delay: 0.1,
-                      },
-                    },
-                  }}
-                >
-                  <p className="message"> Settings successfully Changed! </p>
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <RocketLoading />
           </div>
         </OrderContainer>
       </div>
@@ -805,15 +723,31 @@ let Order = () => {
                 <p>{orderDetails.TwitchName}</p>
               </div>
 
-              <div className="startDate">
+              {typeof orderDetails.StartDate !== "undefined" && (
+                <div className="startDate">
+                  <p>Start Date</p>
+                  <p>{orderDetails.StartDate.slice(0, 10)}</p>
+                </div>
+              )}
+
+              {/* <div className="startDate">
                 <p>Start Date</p>
                 {typeof orderDetails.StartDate === "undefined" ? (
                   <p>N/A</p>
                 ) : (
                   <p>{orderDetails.StartDate.slice(0, 10)}</p>
                 )}
-              </div>
+              </div> */}
 
+              {typeof orderDetails.EndDate !== "undefined" && (
+                <div className="endDate">
+                  <p>End Date</p>
+
+                  <p>{orderDetails.EndDate.slice(0, 10)}</p>
+                </div>
+              )}
+
+              {/* 
               <div className="endDate">
                 <p>End Date</p>
 
@@ -822,7 +756,7 @@ let Order = () => {
                 ) : (
                   <p>{orderDetails.EndDate.slice(0, 10)}</p>
                 )}
-              </div>
+              </div> */}
             </div>
 
             {orderDetails.ServiceType === "FollowBot" && (
@@ -857,6 +791,12 @@ let Order = () => {
           {updateSuccess && (
             <>
               <TopNotification text="Settings succesfully changed." />
+            </>
+          )}
+
+          {clickedtoggleOnline.clicked && (
+            <>
+              <TopNotification text={`Order set ${clickedtoggleOnline.text}`} />
             </>
           )}
           {settingsChanged && (

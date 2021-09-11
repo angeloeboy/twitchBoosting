@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import styled from "styled-components";
+import RocketLoading from "./../../Components/Dashboard/rocketLoading";
 
 const PaymentsContainer = styled.div`
   /* position: relative; */
@@ -111,6 +112,47 @@ const PaymentsContainer = styled.div`
     }
   }
 
+  .account-details {
+    background-color: #203298;
+    margin-right: 39px;
+    padding: 21px;
+    /* margin-top: 42px; */
+    margin-bottom: 30px;
+    border-radius: 8px;
+    max-width: 300px;
+    p {
+      &:nth-child(2),
+      &:nth-child(3) {
+        font-size: 14px;
+        margin-top: 5px;
+      }
+    }
+
+    .verify {
+      width: 100%;
+      text-align: center;
+      z-index: 999;
+      transition: all 0.3s ease;
+      justify-content: center;
+      align-items: center;
+      margin-top: 10px;
+      font-size: 12px;
+
+      button {
+        margin-top: 10px;
+        padding: 10px;
+        background-color: transparent;
+        border: 1px solid white;
+        color: white;
+        font-size: 12px;
+        width: 100%;
+        &:hover {
+          background-color: #ee3737;
+        }
+      }
+    }
+  }
+
   @media (max-width: 700px) {
     .main-orders {
       overflow-x: scroll;
@@ -189,19 +231,17 @@ const Payment = styled.div`
   }
 `;
 
-let Payments = () => {
+let Profile = () => {
   const [payments, setpayments] = useState([]);
   const [loading, setloading] = useState(true);
-
+  const [userData, setUserData] = useState("");
   useEffect(() => {
-    const payments = JSON.parse(
-      localStorage.getItem("userObject")
-    ).PaymentHistory;
-
-    console.log(payments);
-    setpayments(payments);
+    const user = JSON.parse(localStorage.getItem("userObject"));
+    setpayments(user.PaymentHistory);
+    setUserData(user);
     setloading(false);
   }, []);
+
   if (loading) {
     return (
       <PaymentsContainer>
@@ -218,13 +258,36 @@ let Payments = () => {
             <p className="Available">Date</p>
           </div>
 
-          <div className="orders"></div>
+          <div className="orders">
+            <RocketLoading />
+          </div>
         </div>
       </PaymentsContainer>
     );
   } else {
     return (
       <PaymentsContainer>
+        <div className="account-details">
+          <p> Type: {userData.AccountType}</p>
+          <p>Credits: {userData.Credits}</p>
+
+          {!userData.Verified && (
+            <div className="verify">
+              <p>Your account is unverified</p>
+              <button
+                onClick={() => {
+                  setTimeout(() => {
+                    setisNotVerifiedVisible(false);
+                  }, 1000);
+                  sendVerification();
+                }}
+              >
+                Send Verification
+              </button>
+            </div>
+          )}
+        </div>
+
         <div className="header">
           <div>
             <h1>Payments History</h1>
@@ -273,4 +336,4 @@ let Payments = () => {
   }
 };
 
-export default Payments;
+export default Profile;

@@ -60,6 +60,8 @@ const Div = styled.div`
 
       form {
         margin-top: 25px;
+        max-width: 368px;
+
         input {
           display: block;
           width: 100%;
@@ -121,6 +123,14 @@ const Div = styled.div`
           background-color: #00ff4081;
           padding: 15px;
         }
+      }
+    }
+
+    small {
+      color: #8f8f8f;
+
+      a {
+        color: blue;
       }
     }
   }
@@ -401,6 +411,19 @@ let Register = () => {
                   <input type="submit" value="Sign up" />
                 )}
               </div>
+              <small>
+                This site is protected by reCAPTCHA and the Google
+                <a href="https://policies.google.com/privacy">
+                  {" "}
+                  Privacy Policy{" "}
+                </a>
+                and
+                <a href="https://policies.google.com/terms">
+                  {" "}
+                  Terms of Service
+                </a>{" "}
+                apply.
+              </small>
 
               {passError && <p className="error">{"Password doesn't match"}</p>}
 

@@ -7,6 +7,8 @@ import { motion } from "framer-motion";
 
 import checkImg from "../../../../Images/check.svg";
 import xImg from "../../../../Images/x-image.svg";
+import TopNotification from "./../../../../Components/Dashboard/TopNotification";
+import RocketLoading from "./../../../../Components/Dashboard/rocketLoading";
 const OrderContainer = styled.div`
   .arrow {
     display: inline-block;
@@ -138,6 +140,10 @@ let Order = () => {
   const [orderDetails, setorderDetails] = useState({});
   const [isOnline, setisOnline] = useState("");
 
+  const [clickedtoggleOnline, setclickedtoggleOnline] = useState({
+    clicked: false,
+    text: "Online",
+  });
   //Get the order data of individual orders based on the link
   useEffect(() => {
     if (id != undefined) {
@@ -179,6 +185,67 @@ let Order = () => {
       .catch((error) => console.log("error", error));
   };
 
+  let setOrderOnline = () => {
+    let cookie = localStorage.getItem("cookie");
+
+    var myHeaders = new Headers();
+    myHeaders.append("x-api-key", cookie);
+
+    var requestOptions = {
+      method: "PUT",
+      headers: myHeaders,
+      redirect: "follow",
+    };
+
+    if (orderDetails.Online) {
+      fetch(
+        "https://easyviews.herokuapp.com/Api/v1/Staff/Orders/SetStatus/Offline/" +
+          id,
+        requestOptions
+      )
+        .then((response) => response.json())
+        .then((result) => {
+          console.log(result);
+          setisOnline(false);
+          setclickedtoggleOnline({
+            clicked: true,
+            text: "Offline",
+          });
+
+          setTimeout(() => {
+            setclickedtoggleOnline({
+              clicked: false,
+              text: "Offline",
+            });
+          }, 1000);
+        })
+        .catch((error) => console.log("error", error));
+    } else {
+      fetch(
+        "https://easyviews.herokuapp.com/Api/v1/Staff/Orders/SetStatus/Online/" +
+          id,
+        requestOptions
+      )
+        .then((response) => response.json())
+        .then((result) => {
+          console.log(result);
+          setisOnline(true);
+          setclickedtoggleOnline({
+            clicked: true,
+            text: "Online",
+          });
+
+          setTimeout(() => {
+            setclickedtoggleOnline({
+              clicked: false,
+              text: "Online",
+            });
+          }, 1000);
+        })
+        .catch((error) => console.log("error", error));
+    }
+  };
+
   if (isloading) {
     return (
       <div>
@@ -201,90 +268,7 @@ let Order = () => {
           </div>
 
           <div className="main">
-            <div className="delay box">
-              <h1>Delay</h1>
-
-              <div className="info">
-                <p>Minimum Delay</p>
-                <p>Loading</p>
-              </div>
-
-              <div className="info">
-                <p>Maximum Delay</p>
-                <p>Loading</p>
-              </div>
-            </div>
-
-            <div className="dates box">
-              <h1>Dates</h1>
-
-              <div className="info">
-                <p>Start Date</p>
-                <p>Loading</p>
-              </div>
-
-              <div className="info">
-                <p>End Date</p>
-                <p>Loading</p>
-              </div>
-            </div>
-
-            <div className="details box">
-              <h1>Details</h1>
-              <div className="info">
-                <p>Email</p>
-                <p>Loading</p>
-              </div>
-
-              <div className="info">
-                <p>Status</p>
-                <p>Loading</p>
-              </div>
-
-              <div className="info">
-                <p> Online</p>
-
-                <div className="img">Loading</div>
-              </div>
-
-              <div className="info">
-                <p>Twitch Name</p>
-                <p>{orderDetails.TwitchName}</p>
-              </div>
-
-              {orderDetails.ServiceType == "ChatBot" && (
-                <div className="info">
-                  <p>Message List</p>
-                  <p>Loading</p>
-                </div>
-              )}
-            </div>
-
-            <div className="followersCount box">
-              <h1>Followers Count</h1>
-              <div className="info">
-                <p>Max Threads</p>
-                <p>Loading</p>
-              </div>
-              <div className="info">
-                <p>Threads</p>
-                <p>Loading</p>
-              </div>
-            </div>
-
-            <div className="followers box">
-              <h1>Followers</h1>
-
-              <div className="info">
-                <p>Delivered</p>
-                <p>Loading</p>
-              </div>
-
-              <div className="info">
-                <p>Requested</p>
-                <p>Loading</p>
-              </div>
-            </div>
+            <RocketLoading />
           </div>
         </OrderContainer>
       </div>
@@ -307,7 +291,7 @@ let Order = () => {
               <button className="serviceType">
                 {orderDetails.ServiceType}
               </button>
-              <button className="online">
+              <button className="online" onClick={() => setOrderOnline()}>
                 {orderDetails.Online ? "Online" : "Offline"}
               </button>
             </div>
@@ -407,6 +391,12 @@ let Order = () => {
           </div>
         </div>
       </OrderContainer>
+
+      {clickedtoggleOnline.clicked && (
+        <>
+          <TopNotification text={`Order set ${clickedtoggleOnline.text}`} />
+        </>
+      )}
     </div>
   );
 };

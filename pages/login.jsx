@@ -44,6 +44,7 @@ const Div = styled.div`
     background: #e5e5e5;
 
     .form {
+      max-width: 368px;
       h2 {
         font-weight: bold;
         font-size: 40px;
@@ -122,6 +123,14 @@ const Div = styled.div`
               width: 50px;
             }
           }
+        }
+      }
+
+      small {
+        color: #8f8f8f;
+
+        a {
+          color: blue;
         }
       }
     }
@@ -419,7 +428,19 @@ let Login = () => {
                     <input type="submit" value="Login" />
                   )}
                 </div>
-
+                <small>
+                  This site is protected by reCAPTCHA and the Google
+                  <a href="https://policies.google.com/privacy">
+                    {" "}
+                    Privacy Policy{" "}
+                  </a>
+                  and
+                  <a href="https://policies.google.com/terms">
+                    {" "}
+                    Terms of Service
+                  </a>{" "}
+                  apply.
+                </small>
                 {err && <p className="error">Incorrect email or password</p>}
               </form>
               <p>

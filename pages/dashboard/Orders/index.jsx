@@ -10,8 +10,21 @@ import checkImg from "../../../Images/check.svg";
 import xImg from "../../../Images/x-image.svg";
 import { motion } from "framer-motion";
 import { useRouter } from "next/router";
+import RocketLoading from "./../../../Components/Dashboard/rocketLoading";
 
 const OrderContainer = styled.div`
+  h1 {
+    display: inline-block;
+  }
+
+  .open,
+  .completed {
+    display: inline-block;
+    margin-left: 20px;
+    cursor: pointer;
+    font-weight: 300;
+  }
+
   .panels {
     display: flex;
     width: 100%;
@@ -41,6 +54,18 @@ const OrderContainer = styled.div`
 
     @media (max-width: 550px) {
       padding: 0px;
+    }
+  }
+
+  @media (max-width: 500px) {
+    h1 {
+      display: block;
+    }
+
+    .open,
+    .completed {
+      margin-left: 0px;
+      margin-right: 20px;
     }
   }
 
@@ -150,6 +175,13 @@ let Orders = () => {
   const [currentPage, setcurrentPage] = useState();
   const [isNextPossible, setisNextPossible] = useState(false);
 
+  const [seeCompleted, setseeCompleted] = useState(true);
+  const [seeOpen, setseeOpen] = useState(true);
+
+  const [completedLength, setcompletedLength] = useState(0);
+  const [openLength, setopenLength] = useState(0);
+
+  const [filteredOrders, setfilteredOrders] = useState([]);
   useEffect(() => {
     if (router.isReady && !page) {
       router.push("/dashboard/Orders?page=1");
@@ -164,10 +196,37 @@ let Orders = () => {
   useEffect(() => {
     if (orders.length > 0 || !error) {
       setLoading(false);
+
+      let arr = [];
+
+      let result;
+
+      if (seeCompleted) {
+        result = orders.filter((order) => {
+          if (order.Status == "Completed") {
+            return true;
+          }
+        });
+        setcompletedLength(result.length);
+        arr = [...arr, ...result];
+      }
+
+      if (seeOpen) {
+        result = orders.filter((order) => {
+          if (order.Status == "Processing") {
+            return true;
+          }
+        });
+        setopenLength(result.length);
+        arr = [...arr, ...result];
+      }
+
+      console.log(arr);
+      setfilteredOrders(arr);
     } else {
       setLoading(true);
     }
-  }, [orders, error]);
+  }, [orders, error, seeOpen, seeCompleted]);
 
   let getOrders = () => {
     let cookie = localStorage.getItem("cookie");
@@ -194,8 +253,6 @@ let Orders = () => {
 
           setorders([...result.Response]);
           seterror(false);
-          console.log(result.Response.length);
-
           if (result.Response.length === 30) {
             setisNextPossible(true);
           } else {
@@ -252,7 +309,8 @@ let Orders = () => {
           </div>
 
           <div className="orders">
-            <p>Loading...</p>
+            {/* <p>Loading...</p> */}
+            <RocketLoading />
           </div>
         </OrderContainer>
       </div>
@@ -263,6 +321,20 @@ let Orders = () => {
         <OrderContainer>
           <h1>Orders</h1>
 
+          <p
+            className="open"
+            onClick={() => setseeOpen(!seeOpen)}
+            style={!seeOpen ? { color: "#4e4e4e" } : { color: "white" }}
+          >
+            Open ({openLength})
+          </p>
+          <p
+            className="completed"
+            onClick={() => setseeCompleted(!seeCompleted)}
+            style={!seeCompleted ? { color: "#4e4e4e" } : { color: "white" }}
+          >
+            Completed ({completedLength})
+          </p>
           <div className="main-orders">
             <div className="panels">
               <p>Order ID</p>
@@ -274,7 +346,7 @@ let Orders = () => {
             {error && <p>No orders found</p>}
 
             <div className="orders">
-              {orders.map((order) => {
+              {filteredOrders.map((order) => {
                 return (
                   <motion.div
                     initial="hidden"

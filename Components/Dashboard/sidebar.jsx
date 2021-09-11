@@ -19,7 +19,7 @@ const SidebarDiv = styled.div`
   width: 20%;
   color: white;
   background-color: #070707;
-  padding: 22px 0px 0px 39px;
+  padding: 22px 0px 22px 39px;
   height: 100vh;
   border-right: 1px solid rgba(255, 255, 255, 0.08);
   position: fixed;
@@ -59,21 +59,6 @@ const SidebarDiv = styled.div`
         margin-top: 5px;
       }
     }
-
-    .logout {
-      background-color: transparent;
-      color: white;
-      width: 100%;
-      padding: 5px;
-      margin-top: 20px;
-      border: 1px solid white;
-      transition: all 0.3s ease;
-      cursor: pointer;
-      &:hover {
-        background-color: white;
-        color: black;
-      }
-    }
   }
 
   .menu {
@@ -111,6 +96,21 @@ const SidebarDiv = styled.div`
           }
         }
       }
+    }
+  }
+
+  .logout {
+    background-color: transparent;
+    color: white;
+    width: 80%;
+    padding: 5px;
+    margin-top: 20px;
+    border: 1px solid white;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    &:hover {
+      background-color: white;
+      color: black;
     }
   }
 
@@ -201,6 +201,7 @@ const SidebarDiv = styled.div`
         props.visible ? "translateX(0%)" : "translateX(-100%)"};
       transition: all 0.3s ease-in-out;
       overflow-y: auto;
+      padding-bottom: 20px;
     }
 
     .account-details {
@@ -259,6 +260,11 @@ const SidebarDiv = styled.div`
 let Sidebar = (props) => {
   let menuItems = [
     {
+      name: "Profile",
+      clicked: false,
+      img: plansImg,
+    },
+    {
       name: "Orders",
       clicked: false,
       img: cartImg,
@@ -270,11 +276,6 @@ let Sidebar = (props) => {
     },
     {
       name: "Plans",
-      clicked: false,
-      img: plansImg,
-    },
-    {
-      name: "Payments",
       clicked: false,
       img: plansImg,
     },
@@ -395,24 +396,12 @@ let Sidebar = (props) => {
       <div className="logo">
         <Image src={logo} />
       </div>
+
       <div className="menu-container">
-        <div className="account-details">
-          {/* <p className="account-name">{userData.Email}</p> */}
+        {/* <div className="account-details">
           <p> Type: {userData.AccountType}</p>
           <p>Credits: {userData.Credits}</p>
-          <button
-            onClick={() => {
-              props.setvisible(false);
-              setTimeout(() => {
-                localStorage.clear();
-                sessionStorage.clear();
-                props.setlogout(true);
-              }, 1000);
-            }}
-            className="logout"
-          >
-            <p>Logout</p>
-          </button>
+
           {!userData.Verified && isNotVerifiedVisible && (
             <div className="verify">
               <p>Your account is unverified</p>
@@ -428,7 +417,7 @@ let Sidebar = (props) => {
               </button>
             </div>
           )}
-        </div>
+        </div> */}
 
         <div className="menu">
           <p className="main-menu-text">Main menu</p>
@@ -500,6 +489,19 @@ let Sidebar = (props) => {
             </div>
           </div>
         )}
+        <button
+          onClick={() => {
+            props.setvisible(false);
+            setTimeout(() => {
+              localStorage.clear();
+              sessionStorage.clear();
+              props.setlogout(true);
+            }, 1000);
+          }}
+          className="logout"
+        >
+          <p>Logout</p>
+        </button>
       </div>
     </SidebarDiv>
   );
