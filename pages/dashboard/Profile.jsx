@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { useState, useEffect } from "react";
 import styled from "styled-components";
 import RocketLoading from "./../../Components/Dashboard/rocketLoading";
+import TopNotification from "./../../Components/Dashboard/TopNotification";
 
 const PaymentsContainer = styled.div`
   /* position: relative; */
@@ -265,6 +266,8 @@ let Profile = () => {
   const [userData, setUserData] = useState("");
   const [changePassword, setchangePassword] = useState(false);
   const [password, setpassword] = useState("");
+  const [passwordChangeSuccess, setpasswordChangeSuccess] = useState(false);
+
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("userObject"));
     setpayments(user.PaymentHistory);
@@ -277,6 +280,7 @@ let Profile = () => {
 
     var myHeaders = new Headers();
     myHeaders.append("x-api-key", cookie);
+    myHeaders.append("Content-Type", "application/json");
 
     let raw = JSON.stringify({
       Password: password,
@@ -296,10 +300,14 @@ let Profile = () => {
       .then((response) => response.json())
       .then((result) => {
         console.log(result);
+        if (result.Error == 0) {
+          setpasswordChangeSuccess(true);
 
-        // setTimeout(() => {
-        //   setchangePassword(false);
-        // }, 1000);
+          setTimeout(() => {
+            setchangePassword(false);
+            setpasswordChangeSuccess(false);
+          }, 1000);
+        }
       })
       .catch((error) => console.log("error", error));
   };
@@ -369,6 +377,12 @@ let Profile = () => {
                 <button onClick={() => setchangePassword(true)}>
                   Change Password
                 </button>
+              )}
+
+              {passwordChangeSuccess && (
+                <>
+                  <p>Succesfully changed Password!</p>
+                </>
               )}
             </div>
           </div>
