@@ -11,6 +11,7 @@ import xImg from "../../../../Images/x-image.svg";
 import { motion } from "framer-motion";
 import searchIcon from "../../../../Images/search-icon.png";
 import { useRouter } from "next/router";
+import RocketLoading from "./../../../../Components/Dashboard/rocketLoading";
 
 const OrderContainer = styled.div`
   h1 {
@@ -477,7 +478,8 @@ let Orders = (props) => {
               <p className="ServiceType">ServiceType</p>
               <p className="Online">Online</p>
             </div>
-            <p>Loading</p>
+
+            <RocketLoading />
           </div>
         </OrderContainer>
       </div>

@@ -7,6 +7,7 @@ import Link from "next/link";
 import AddGiftCardModal from "../../../../Components/Dashboard/Giftcard/AddGiftCardModal";
 import GiftcardDescriptionModal from "./../../../../Components/Dashboard/Giftcard/GiftcardDescriptionModal";
 import { useRouter } from "next/router";
+import RocketLoading from "../../../../Components/Dashboard/rocketLoading";
 
 const GiftCardsContainer = styled.div`
   /* position: relative; */
@@ -501,7 +502,7 @@ let GiftCards = () => {
             <p className="Available">Available</p>
           </div>
 
-          <p>Loading</p>
+          <RocketLoading />
         </div>
       </GiftCardsContainer>
     );

@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import stars from "../Images/stars-login.png";
 import Image from "next/image";
 import Link from "next/link";
-import { uid, suid } from "rand-token";
+
 import { useRouter } from "next/router";
-import spinner from "../Images/spinner.gif";
+
 import { motion } from "framer-motion";
 import Head from "next/head";
 import loadingImg from "../Images/loading.gif";
@@ -294,13 +294,11 @@ let Login = () => {
 
         if (result.Error == 0) {
           router.push("/dashboard");
+        } else {
+          setloading(false);
         }
       });
   };
-
-  function onChange(value) {
-    console.log("Captcha value:", value);
-  }
 
   useEffect(() => {
     const loadScriptByURL = (id, url, callback) => {

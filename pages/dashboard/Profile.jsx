@@ -267,6 +267,7 @@ let Profile = () => {
   const [changePassword, setchangePassword] = useState(false);
   const [password, setpassword] = useState("");
   const [passwordChangeSuccess, setpasswordChangeSuccess] = useState(false);
+  const [passwordChangeResponse, setpasswordChangeResponse] = useState("");
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("userObject"));
@@ -300,13 +301,17 @@ let Profile = () => {
       .then((response) => response.json())
       .then((result) => {
         console.log(result);
+        setpasswordChangeSuccess(true);
+
         if (result.Error == 0) {
-          setpasswordChangeSuccess(true);
+          setpasswordChangeResponse(result.Response);
 
           setTimeout(() => {
             setchangePassword(false);
             setpasswordChangeSuccess(false);
           }, 1000);
+        } else {
+          setpasswordChangeResponse(result.ErrorMessage);
         }
       })
       .catch((error) => console.log("error", error));
@@ -381,7 +386,7 @@ let Profile = () => {
 
               {passwordChangeSuccess && (
                 <>
-                  <p>Succesfully changed Password!</p>
+                  <p>{passwordChangeResponse}</p>
                 </>
               )}
             </div>

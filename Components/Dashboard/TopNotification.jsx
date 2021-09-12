@@ -4,11 +4,11 @@ let Div = styled.div`
   position: absolute;
   background-color: red;
   text-align: center;
-
+  background-color: ${(props) => (props.error ? "red" : "green")};
   .success {
     position: fixed;
     top: 20px;
-    background-color: green;
+    /* background-color: ${(props) => (props.error ? "red" : "green")}; */
     padding: 20px 30px;
     border-radius: 10px;
     left: 50%;
@@ -25,9 +25,11 @@ let Div = styled.div`
 
 let TopNotification = (props) => {
   return (
-    <Div>
+    <Div error={props.error}>
       <div className="success">
-        <p className="message"> {props.text} </p>
+        <p className="message">
+          {props.text} {props.error}
+        </p>
       </div>
     </Div>
   );

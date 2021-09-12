@@ -12,6 +12,7 @@ import checkImg from "../../../../Images/check.svg";
 import xImg from "../../../../Images/x-image.svg";
 import searchIcon from "../../../../Images/search-icon.png";
 import { useRouter } from "next/router";
+import RocketLoading from "./../../../../Components/Dashboard/rocketLoading";
 
 const CustomersContainer = styled.div`
   h1 {
@@ -598,7 +599,7 @@ let Customers = () => {
                 <p className="verified">Verified</p>
               </div>
 
-              <p>Loading</p>
+              <RocketLoading />
             </div>
           </div>
         </CustomersContainer>

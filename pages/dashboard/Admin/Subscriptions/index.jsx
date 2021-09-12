@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import AddSubscriptionModal from "../../../../Components/Dashboard/Subscription/AddSubscriptionModal";
 import SubscriptonDescriptionModal from "./../../../../Components/Dashboard/Subscription/SubscriptonDescriptionModal";
 import { useRouter } from "next/router";
+import RocketLoading from "../../../../Components/Dashboard/rocketLoading";
 
 const GiftCardsContainer = styled.div`
   /* position: relative; */
@@ -447,7 +448,7 @@ let Subscriptions = () => {
             <p className="Available">Service Type</p>
           </div>
 
-          <p>Loading</p>
+          <RocketLoading />
         </div>
       </GiftCardsContainer>
     );

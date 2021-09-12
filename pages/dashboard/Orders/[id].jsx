@@ -300,6 +300,7 @@ let Order = () => {
   const [clickedtoggleOnline, setclickedtoggleOnline] = useState({
     clicked: false,
     text: "Online",
+    error: false,
   });
 
   //Get the order data of individual orders based on the link
@@ -389,17 +390,28 @@ let Order = () => {
       )
         .then((response) => response.json())
         .then((result) => {
-          console.log(result);
-          setisOnline(false);
-          setclickedtoggleOnline({
-            clicked: true,
-            text: "Offline",
-          });
+          if (result.Error == 0) {
+            console.log(result);
+            setisOnline(false);
+
+            setclickedtoggleOnline({
+              clicked: true,
+              text: result.Response,
+              error: false,
+            });
+          } else {
+            setclickedtoggleOnline({
+              clicked: true,
+              text: result.ErrorMessage,
+              error: true,
+            });
+          }
 
           setTimeout(() => {
             setclickedtoggleOnline({
               clicked: false,
-              text: "Offline",
+              text: result.Response,
+              error: false,
             });
           }, 1000);
         })
@@ -412,16 +424,27 @@ let Order = () => {
         .then((response) => response.json())
         .then((result) => {
           console.log(result);
-          setisOnline(true);
-          setclickedtoggleOnline({
-            clicked: true,
-            text: "Online",
-          });
+
+          if (result.Error == 0) {
+            setisOnline(true);
+            setclickedtoggleOnline({
+              clicked: true,
+              text: result.Response,
+              error: false,
+            });
+          } else {
+            setclickedtoggleOnline({
+              clicked: true,
+              text: result.ErrorMessage,
+              error: true,
+            });
+          }
 
           setTimeout(() => {
             setclickedtoggleOnline({
               clicked: false,
-              text: "Online",
+              text: "",
+              error: false,
             });
           }, 1000);
         })
@@ -730,15 +753,6 @@ let Order = () => {
                 </div>
               )}
 
-              {/* <div className="startDate">
-                <p>Start Date</p>
-                {typeof orderDetails.StartDate === "undefined" ? (
-                  <p>N/A</p>
-                ) : (
-                  <p>{orderDetails.StartDate.slice(0, 10)}</p>
-                )}
-              </div> */}
-
               {typeof orderDetails.EndDate !== "undefined" && (
                 <div className="endDate">
                   <p>End Date</p>
@@ -746,17 +760,6 @@ let Order = () => {
                   <p>{orderDetails.EndDate.slice(0, 10)}</p>
                 </div>
               )}
-
-              {/* 
-              <div className="endDate">
-                <p>End Date</p>
-
-                {typeof orderDetails.EndDate === "undefined" ? (
-                  <p>N/A</p>
-                ) : (
-                  <p>{orderDetails.EndDate.slice(0, 10)}</p>
-                )}
-              </div> */}
             </div>
 
             {orderDetails.ServiceType === "FollowBot" && (
@@ -796,7 +799,10 @@ let Order = () => {
 
           {clickedtoggleOnline.clicked && (
             <>
-              <TopNotification text={`Order set ${clickedtoggleOnline.text}`} />
+              <TopNotification
+                text={`${clickedtoggleOnline.text}`}
+                error={clickedtoggleOnline.error}
+              />
             </>
           )}
           {settingsChanged && (
