@@ -105,6 +105,7 @@ const OrderContainer = styled.div`
       grid-gap: 20px;
       grid-template-rows: 1fr 1fr;
       width: 100%;
+
       .box {
         padding: 59px 40px;
         border-radius: 11px;
@@ -167,10 +168,12 @@ const OrderContainer = styled.div`
           display: flex;
           justify-content: space-between;
           position: relative;
-          margin-bottom: 30px;
+          /* margin-bottom: 30px; */
           align-items: center;
+          justify-content: space-between;
+          width: 100%;
           input {
-            width: 300px;
+            /* width: 100%; */
             background-color: transparent;
             border: 2px solid #1b1b1b;
             color: white;
@@ -252,22 +255,6 @@ const OrderContainer = styled.div`
       }
     }
   }
-
-  .success {
-    position: fixed;
-    top: 20px;
-    background-color: green;
-    padding: 20px 30px;
-    border-radius: 10px;
-    left: 50%;
-    transform: translateX(-50%);
-    .message {
-      color: white;
-      /* margin-top: 20px; */
-      font-size: 16px;
-      padding-left: 10px;
-    }
-  }
 `;
 
 let Order = () => {
@@ -295,7 +282,11 @@ let Order = () => {
 
   const [messageListLink, setmessageListLink] = useState("");
 
-  const [delayDisabled, setdelayDisabled] = useState("");
+  const [twitchName, settwitchName] = useState("");
+
+  const [twitchNameChanged, settwitchNameChanged] = useState(false);
+
+  const [modalText, setmodalText] = useState("");
 
   const [clickedtoggleOnline, setclickedtoggleOnline] = useState({
     clicked: false,
@@ -319,7 +310,7 @@ let Order = () => {
       setmaxDelay(orderDetails.MaximumDelay);
       setminDelay(orderDetails.MinimumDelay);
       setthreads(orderDetails.Threads);
-      setdelayDisabled(!orderDetails.Online);
+      // setdelayDisabled(!orderDetails.Online);
 
       if (orderDetails.ServiceType === "ChatBot") {
         setmessageListLink(orderDetails.ChatBotMessageList);
@@ -355,17 +346,21 @@ let Order = () => {
     )
       .then((response) => response.json())
       .then((result) => {
-        let order = result.Response;
-        console.log(order);
-        if (order.ServiceType === "ChatBot") {
-          if (order.ChatBotMessageList != undefined) {
-            setorderDetails(result.Response);
+        if (result.Error == 0) {
+          let order = result.Response;
+          console.log(order);
+          if (order.ServiceType === "ChatBot") {
+            if (order.ChatBotMessageList != undefined) {
+              setorderDetails(result.Response);
+            } else {
+              order.ChatBotMessageList = "";
+              setorderDetails(order);
+            }
           } else {
-            order.ChatBotMessageList = "";
-            setorderDetails(order);
+            setorderDetails(result.Response);
           }
-        } else {
-          setorderDetails(result.Response);
+
+          settwitchName(result.Response.TwitchName);
         }
       })
       .catch((error) => console.log("error", error));
@@ -413,7 +408,7 @@ let Order = () => {
               text: result.Response,
               error: false,
             });
-          }, 1000);
+          }, 2000);
         })
         .catch((error) => console.log("error", error));
     } else {
@@ -446,7 +441,7 @@ let Order = () => {
               text: "",
               error: false,
             });
-          }, 1000);
+          }, 2000);
         })
         .catch((error) => console.log("error", error));
     }
@@ -561,8 +556,6 @@ let Order = () => {
             ChatBotMessageList: messageListLink,
           });
         }
-
-        console.log(raw);
       } else {
         if (orderDetails.Online) {
           raw = JSON.stringify({
@@ -603,6 +596,43 @@ let Order = () => {
           setupdateSuccess(true);
           setsettingsChanged(false);
         }
+      })
+      .catch((error) => console.log("error", error));
+  };
+
+  let changeTwitchName = () => {
+    // setchangeSuccess(false);
+
+    let cookie = localStorage.getItem("cookie");
+
+    var myHeaders = new Headers();
+    myHeaders.append("x-api-key", cookie);
+    myHeaders.append("Content-Type", "application/json");
+
+    let raw;
+    console.log(twitchName);
+    raw = JSON.stringify({
+      TwitchName: twitchName,
+    });
+
+    var requestOptions = {
+      method: "PUT",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow",
+    };
+
+    fetch(
+      "https://easyviews.herokuapp.com/Api/v1/Users/Order/Modify/" + id,
+      requestOptions
+    )
+      .then((response) => response.text())
+      .then((result) => {
+        console.log(result);
+
+        setupdateSuccess(true);
+        getOrderData();
+        settwitchNameChanged(false);
       })
       .catch((error) => console.log("error", error));
   };
@@ -709,7 +739,6 @@ let Order = () => {
                     onChange={(e) => handleMinDelay(e)}
                     value={minDelay}
                     placeholder="Must be lower or equal than maximum delay"
-                    disabled={orderDetails.Online}
                   />
                 </label>
 
@@ -720,7 +749,6 @@ let Order = () => {
                     min="1"
                     onChange={(e) => handleMaxDelay(e)}
                     value={maxDelay}
-                    disabled={orderDetails.Online}
                   />
                 </label>
 
@@ -742,8 +770,27 @@ let Order = () => {
 
             <div className="dates box">
               <div className="twitch-name">
-                <p>Twitch Name</p>
-                <p>{orderDetails.TwitchName}</p>
+                <label htmlFor="">
+                  Twitch Name
+                  <input
+                    type="text"
+                    value={twitchName}
+                    onChange={(e) => {
+                      let name = orderDetails.TwitchName;
+                      settwitchName(e.target.value);
+
+                      if (e.target.value !== name) {
+                        settwitchNameChanged(true);
+                      } else {
+                        settwitchNameChanged(false);
+                      }
+                    }}
+                    disabled={
+                      orderDetails.MaxNameChangesAllowed ===
+                      orderDetails.TwitchNameChanges
+                    }
+                  />
+                </label>
               </div>
 
               {typeof orderDetails.StartDate !== "undefined" && (
@@ -759,6 +806,24 @@ let Order = () => {
 
                   <p>{orderDetails.EndDate.slice(0, 10)}</p>
                 </div>
+              )}
+
+              <div className="numberOfChanges">
+                <p># of Twitch Name Changes:</p>
+
+                <p>{orderDetails.TwitchNameChanges}</p>
+              </div>
+
+              <div className="maxnumberOfChanges">
+                <p>Max # of Twitch Name Changes:</p>
+
+                <p>{orderDetails.MaxNameChangesAllowed}</p>
+              </div>
+
+              {twitchNameChanged && (
+                <button className="save" onClick={() => changeTwitchName()}>
+                  Change Twitch Name
+                </button>
               )}
             </div>
 
@@ -800,11 +865,12 @@ let Order = () => {
           {clickedtoggleOnline.clicked && (
             <>
               <TopNotification
-                text={`${clickedtoggleOnline.text}`}
+                text={clickedtoggleOnline.text}
                 error={clickedtoggleOnline.error}
               />
             </>
           )}
+
           {settingsChanged && (
             <button
               className="save"

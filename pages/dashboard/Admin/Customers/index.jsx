@@ -255,16 +255,24 @@ let Customers = () => {
     )
       .then((response) => response.json())
       .then((result) => {
-        setcustomers(result.Response);
-        console.log(result.Response);
-        if (result.Response.Valid.length + result.Response.Banned.length > 30) {
-          setisNextPossible(false);
-        } else {
-          getNextPageCostumers(requestOptions);
-        }
+        if (result.Error == 0) {
+          setcustomers(result.Response);
+          console.log(result.Response);
+          if (
+            result.Response.Valid.length + result.Response.Banned.length >
+            30
+          ) {
+            setisNextPossible(false);
+          } else {
+            getNextPageCostumers(requestOptions);
+          }
 
-        if (result.Response.Valid.length + result.Response.Banned.length == 0) {
-          router.push("/dashboard/Admin/Customers?page=1");
+          if (
+            result.Response.Valid.length + result.Response.Banned.length ==
+            0
+          ) {
+            router.push("/dashboard/Admin/Customers?page=1");
+          }
         }
       })
       .catch((error) => console.log("error", error));

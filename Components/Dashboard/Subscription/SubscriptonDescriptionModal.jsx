@@ -158,6 +158,9 @@ let SubscriptonDescriptionModal = ({
               <p>Service Type: {subsData.ServiceType}</p>
               <p>Duration: {subsData.Duration}</p>
               <p>Cost: {subsData.Cost}</p>
+              <p>
+                No. of Max Twitch Name changes: {subsData.MaxNameChangesAllowed}
+              </p>
               <button
                 className="delete"
                 onClick={() => {

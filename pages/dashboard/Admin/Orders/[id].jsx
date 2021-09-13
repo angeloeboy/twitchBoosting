@@ -102,6 +102,44 @@ const OrderContainer = styled.div`
           margin-top: 25px;
           color: #5e5e5e;
         }
+
+        label {
+          display: block;
+          color: #5e5e5e;
+          width: 100%;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+
+          input {
+            width: 100%;
+            max-width: 150px;
+            background-color: transparent;
+            border: 2px solid #1b1b1b;
+            color: white;
+            padding: 10px;
+            border-radius: 6px;
+            text-align: right;
+          }
+        }
+      }
+
+      button {
+        max-width: 217px;
+        padding: 12px 0px;
+        border-radius: 8px;
+        display: block;
+        color: white;
+        border: none;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        margin-top: 50px;
+        background-color: #192377;
+        width: 100%;
+
+        &:hover {
+          opacity: 0.8;
+        }
       }
     }
 
@@ -139,6 +177,12 @@ let Order = () => {
 
   const [orderDetails, setorderDetails] = useState({});
   const [isOnline, setisOnline] = useState("");
+
+  const [twitchName, settwitchName] = useState("");
+
+  const [twitchNameChanged, settwitchNameChanged] = useState(false);
+
+  const [updateSuccess, setupdateSuccess] = useState(false);
 
   const [clickedtoggleOnline, setclickedtoggleOnline] = useState({
     clicked: false,
@@ -181,6 +225,7 @@ let Order = () => {
       .then((result) => {
         console.log(result.Response);
         setorderDetails(result.Response[0]);
+        settwitchName(result.Response[0].TwitchName);
       })
       .catch((error) => console.log("error", error));
   };
@@ -244,6 +289,38 @@ let Order = () => {
         })
         .catch((error) => console.log("error", error));
     }
+  };
+
+  let changeTwitchName = () => {
+    let cookie = localStorage.getItem("cookie");
+
+    var myHeaders = new Headers();
+    myHeaders.append("x-api-key", cookie);
+    myHeaders.append("Content-Type", "application/json");
+
+    let raw;
+    console.log(twitchName);
+
+    var requestOptions = {
+      method: "PUT",
+      headers: myHeaders,
+      body: raw,
+      redirect: "follow",
+    };
+
+    fetch(
+      `https://easyviews.herokuapp.com/Api/v1/Staff/Orders/ChangeName/${id}/${twitchName}`,
+      requestOptions
+    )
+      .then((response) => response.text())
+      .then((result) => {
+        console.log(result);
+
+        setupdateSuccess(true);
+        getOrderData();
+        settwitchNameChanged(false);
+      })
+      .catch((error) => console.log("error", error));
   };
 
   if (isloading) {
@@ -352,8 +429,26 @@ let Order = () => {
             </div>
 
             <div className="info">
-              <p>Twitch Name</p>
-              <p>{orderDetails.TwitchName}</p>
+              <label>
+                Twitch Name
+                <input
+                  type="text"
+                  value={twitchName}
+                  onChange={(e) => {
+                    let name = orderDetails.TwitchName;
+                    settwitchName(e.target.value);
+                    if (e.target.value == name) {
+                      settwitchNameChanged(false);
+                    } else {
+                      settwitchNameChanged(true);
+                    }
+                  }}
+                  disabled={
+                    orderDetails.TwitchNameChanges ===
+                    orderDetails.MaxNameChangesAllowed
+                  }
+                />
+              </label>
             </div>
 
             {orderDetails.ServiceType == "ChatBot" && (
@@ -361,6 +456,24 @@ let Order = () => {
                 <p>Message List</p>
                 <p>{orderDetails.ChatBotMessageList}</p>
               </div>
+            )}
+
+            <div className="info">
+              <p># of Twitch Name Changes:</p>
+
+              <p>{orderDetails.TwitchNameChanges}</p>
+            </div>
+
+            <div className="info">
+              <p>Max # of Twitch Name Changes:</p>
+
+              <p>{orderDetails.MaxNameChangesAllowed}</p>
+            </div>
+
+            {twitchNameChanged && (
+              <button className="save" onClick={() => changeTwitchName()}>
+                Change Twitch Name
+              </button>
             )}
           </div>
 
@@ -376,19 +489,21 @@ let Order = () => {
             </div>
           </div>
 
-          <div className="followers box">
-            <h1>Followers</h1>
+          {orderDetails.ServiceType === "FollowBot" && (
+            <div className="followers box">
+              <h1>Followers</h1>
 
-            <div className="info">
-              <p>Delivered</p>
-              <p>{orderDetails.FollowersDelivered}</p>
-            </div>
+              <div className="info">
+                <p>Delivered</p>
+                <p>{orderDetails.FollowersDelivered}</p>
+              </div>
 
-            <div className="info">
-              <p>Requested</p>
-              <p>{orderDetails.FollowersRequested}</p>
+              <div className="info">
+                <p>Requested</p>
+                <p>{orderDetails.FollowersRequested}</p>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </OrderContainer>
 

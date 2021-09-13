@@ -105,6 +105,7 @@ let AddSubscriptionModal = ({ setaddsubsVisible, setSubsLength }) => {
   const [followersRequested, setfollowersRequested] = useState(1);
   const [cost, setcost] = useState(1);
   const [maxThreads, setmaxThreads] = useState(1);
+  const [maxTwitchNameChanges, setmaxTwitchNameChanges] = useState(1);
 
   const [succesfull, setsuccesfull] = useState(false);
 
@@ -123,6 +124,7 @@ let AddSubscriptionModal = ({ setaddsubsVisible, setSubsLength }) => {
         Duration: duration,
         FollowersRequested: followersRequested,
         Cost: cost,
+        MaxNameChangesAllowed: maxTwitchNameChanges,
       });
     } else {
       var raw = JSON.stringify({
@@ -131,6 +133,7 @@ let AddSubscriptionModal = ({ setaddsubsVisible, setSubsLength }) => {
         Duration: duration,
         Cost: cost,
         MaximumThreads: maxThreads,
+        MaxNameChangesAllowed: maxTwitchNameChanges,
       });
     }
 
@@ -145,15 +148,18 @@ let AddSubscriptionModal = ({ setaddsubsVisible, setSubsLength }) => {
       "https://easyviews.herokuapp.com/Api/v1/Staff/Subscriptions/Create",
       requestOptions
     )
-      .then((response) => response.text())
+      .then((response) => response.json())
       .then((result) => {
-        console.log(result.Response);
-        setsuccesfull(true);
-        setSubslength();
+        console.log(result);
 
-        setTimeout(() => {
-          setaddsubsVisible(false);
-        }, 1000);
+        if (result.Error == 0) {
+          setsuccesfull(true);
+          setSubslength();
+
+          setTimeout(() => {
+            setaddsubsVisible(false);
+          }, 1000);
+        }
       })
       .catch((error) => console.log("error", error));
   };
@@ -171,7 +177,7 @@ let AddSubscriptionModal = ({ setaddsubsVisible, setSubsLength }) => {
     };
 
     fetch(
-      "https://easyviews.herokuapp.com/Api/v1/Staff/Subscriptions/View?page=1",
+      "https://easyviews.herokuapp.com/Api/v1/Staff/Subscriptions/View?Page=1",
       requestOptions
     )
       .then((response) => response.json())
@@ -272,7 +278,18 @@ let AddSubscriptionModal = ({ setaddsubsVisible, setSubsLength }) => {
                       onChange={(e) => setcost(e.target.value)}
                     />
                   </label>
+
+                  <label>
+                    Max Name changes allowed
+                    <input
+                      type="number"
+                      min="1"
+                      value={maxTwitchNameChanges}
+                      onChange={(e) => setmaxTwitchNameChanges(e.target.value)}
+                    />
+                  </label>
                 </form>
+
                 {name !== "" && (
                   <button onClick={(e) => createSubs(e)}>Create</button>
                 )}
