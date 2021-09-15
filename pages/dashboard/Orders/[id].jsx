@@ -724,11 +724,6 @@ let Order = () => {
                 minutes.{" "}
               </p>
 
-              {orderDetails.Online && (
-                <p style={{ marginTop: "20px", fontWeight: "bold" }}>
-                  Set the order to offline to change the delay values
-                </p>
-              )}
               <div className="delay">
                 <label>
                   Minimum Delay:

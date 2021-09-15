@@ -180,6 +180,12 @@ let Order = () => {
 
   const [twitchName, settwitchName] = useState("");
 
+  const [twitchNameChangeSuccess, settwitchNameChangeSuccess] = useState({
+    visible: false,
+    text: "",
+    error: false,
+  });
+
   const [twitchNameChanged, settwitchNameChanged] = useState(false);
 
   const [updateSuccess, setupdateSuccess] = useState(false);
@@ -187,6 +193,7 @@ let Order = () => {
   const [clickedtoggleOnline, setclickedtoggleOnline] = useState({
     clicked: false,
     text: "Online",
+    error: false,
   });
   //Get the order data of individual orders based on the link
   useEffect(() => {
@@ -252,15 +259,26 @@ let Order = () => {
         .then((result) => {
           console.log(result);
           setisOnline(false);
-          setclickedtoggleOnline({
-            clicked: true,
-            text: "Offline",
-          });
+
+          if (result.Error == 0) {
+            setclickedtoggleOnline({
+              clicked: true,
+              text: result.Response,
+              error: false,
+            });
+          } else {
+            setclickedtoggleOnline({
+              clicked: true,
+              text: result.ErrorMessage,
+              error: true,
+            });
+          }
 
           setTimeout(() => {
             setclickedtoggleOnline({
               clicked: false,
-              text: "Offline",
+              text: "Online",
+              error: false,
             });
           }, 1000);
         })
@@ -275,15 +293,26 @@ let Order = () => {
         .then((result) => {
           console.log(result);
           setisOnline(true);
-          setclickedtoggleOnline({
-            clicked: true,
-            text: "Online",
-          });
+
+          if (result.Error == 0) {
+            setclickedtoggleOnline({
+              clicked: true,
+              text: result.Response,
+              error: false,
+            });
+          } else {
+            setclickedtoggleOnline({
+              clicked: true,
+              text: result.ErrorMessage,
+              error: true,
+            });
+          }
 
           setTimeout(() => {
             setclickedtoggleOnline({
               clicked: false,
               text: "Online",
+              error: false,
             });
           }, 1000);
         })
@@ -316,8 +345,23 @@ let Order = () => {
       .then((result) => {
         console.log(result);
 
+        if (result.Error == 0) {
+          settwitchNameChangeSuccess({
+            visible: true,
+            text: result.Response,
+            error: false,
+          });
+          getOrderData();
+        } else {
+          settwitchNameChangeSuccess({
+            visible: true,
+            text: result.ErrorMessage,
+            error: true,
+          });
+        }
+
         setupdateSuccess(true);
-        getOrderData();
+
         settwitchNameChanged(false);
       })
       .catch((error) => console.log("error", error));
@@ -509,7 +553,19 @@ let Order = () => {
 
       {clickedtoggleOnline.clicked && (
         <>
-          <TopNotification text={`Order set ${clickedtoggleOnline.text}`} />
+          <TopNotification
+            text={clickedtoggleOnline.text}
+            error={clickedtoggleOnline.error}
+          />
+        </>
+      )}
+
+      {twitchNameChangeSuccess.visible && (
+        <>
+          <TopNotification
+            text={twitchNameChangeSuccess.text}
+            error={twitchNameChangeSuccess.error}
+          />
         </>
       )}
     </div>
