@@ -341,16 +341,18 @@ let Order = () => {
       `https://easyviews.herokuapp.com/Api/v1/Staff/Orders/ChangeName/${id}/${twitchName}`,
       requestOptions
     )
-      .then((response) => response.text())
+      .then((response) => response.json())
       .then((result) => {
         console.log(result);
+        console.log(result.Error);
 
-        if (result.Error == 0) {
+        if (result.Error === 0) {
           settwitchNameChangeSuccess({
             visible: true,
             text: result.Response,
             error: false,
           });
+          console.log("No error");
           getOrderData();
         } else {
           settwitchNameChangeSuccess({
@@ -358,10 +360,10 @@ let Order = () => {
             text: result.ErrorMessage,
             error: true,
           });
+          console.log("error");
         }
 
         setupdateSuccess(true);
-
         settwitchNameChanged(false);
       })
       .catch((error) => console.log("error", error));

@@ -26,6 +26,10 @@ const Success = styled.div`
     font-size: 16px;
     text-align: center;
   }
+
+  @media (max-width: 1250px) {
+    top: 100px;
+  }
 `;
 
 let TopNotification = (props) => {
