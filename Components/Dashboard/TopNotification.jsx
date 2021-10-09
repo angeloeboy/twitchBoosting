@@ -30,6 +30,12 @@ const Success = styled.div`
   @media (max-width: 1250px) {
     top: 100px;
   }
+
+  @media (max-width: 500px) {
+    .message {
+      width: 90%;
+    }
+  }
 `;
 
 let TopNotification = (props) => {

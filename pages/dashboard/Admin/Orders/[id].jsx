@@ -167,6 +167,23 @@ const OrderContainer = styled.div`
       }
     }
   }
+
+  .toggle-buttons {
+    .online {
+      border: 1px solid white;
+      background-color: transparent;
+      color: white;
+      width: 132px;
+      border-radius: 8px;
+      padding: 14px 0px;
+      margin-top: 30px;
+      transition: all 0.1s ease;
+      text-align: center;
+      display: inline-block;
+      margin-right: 16px;
+      cursor: pointer;
+    }
+  }
 `;
 
 let Order = () => {
@@ -195,6 +212,7 @@ let Order = () => {
     text: "Online",
     error: false,
   });
+
   //Get the order data of individual orders based on the link
   useEffect(() => {
     if (id != undefined) {
@@ -248,6 +266,12 @@ let Order = () => {
       headers: myHeaders,
       redirect: "follow",
     };
+
+    setclickedtoggleOnline({
+      clicked: true,
+      text: "Changing Status...",
+      error: false,
+    });
 
     if (orderDetails.Online) {
       fetch(
@@ -385,7 +409,6 @@ let Order = () => {
             <div className="online-bottype-container">
               <div className="btn-container">
                 <button className="serviceType">Loading</button>
-                <button className="online">Loading</button>
               </div>
             </div>
           </div>
@@ -413,9 +436,6 @@ let Order = () => {
             <div className="btn-container">
               <button className="serviceType">
                 {orderDetails.ServiceType}
-              </button>
-              <button className="online" onClick={() => setOrderOnline()}>
-                {orderDetails.Online ? "Online" : "Offline"}
               </button>
             </div>
           </div>
@@ -550,6 +570,32 @@ let Order = () => {
               </div>
             </div>
           )}
+        </div>
+
+        <div className="toggle-buttons">
+          <div
+            className="online"
+            style={!orderDetails.Online ? { opacity: "1" } : { opacity: "0.5" }}
+            onClick={() => {
+              if (!orderDetails.Online) {
+                setOrderOnline();
+              }
+            }}
+          >
+            Start Bot
+          </div>
+
+          <div
+            className="online"
+            style={orderDetails.Online ? { opacity: "1" } : { opacity: "0.5" }}
+            onClick={() => {
+              if (orderDetails.Online) {
+                setOrderOnline();
+              }
+            }}
+          >
+            Stop Bot
+          </div>
         </div>
       </OrderContainer>
 
