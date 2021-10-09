@@ -2,7 +2,7 @@ import styled from "styled-components";
 import Image from "next/image";
 
 import userImg from "../../Images/user.jpg";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Carousel from "./Carousel";
 const Div = styled.div`
   background: linear-gradient(283.19deg, #192377 0%, #3244da 99.3%);
@@ -58,21 +58,6 @@ const Feedback = () => {
         </div>
 
         <div className="slider">
-          {/* {reviews.map((review) => {
-            return (
-              <Review key={review.Name}>
-                <div className="img-container">
-                  <Image src={review.Image} alt="Reviewer's Image" />
-                </div>
-                <h4 className="name">{review.Name}</h4>
-                <p className="review">{review.Text}</p>
-              </Review>
-            );
-          })}
-
-          <button>next</button>
-          <button>previous</button> */}
-
           <Carousel />
         </div>
       </div>

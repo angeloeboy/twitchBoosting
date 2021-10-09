@@ -1,8 +1,13 @@
+/* eslint-disable react/jsx-key */
 import { useEmblaCarousel } from "embla-carousel/react";
 import styled from "styled-components";
 import Image from "next/image";
 import userImg from "../../Images//user.jpg";
 import { useCallback, useEffect, useRef, useState } from "react";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+import Slider from "react-slick";
+
 const Div = styled.div`
   .embla {
     overflow: hidden;
@@ -19,12 +24,13 @@ const Div = styled.div`
 `;
 
 const Review = styled.div`
-  max-width: 500px;
+  /* max-width: 500px; */
   width: 100%;
   margin: 0 auto;
+  display: block;
   text-align: center;
   margin-top: 55px;
-
+  color: white;
   .img-container {
     display: block;
 
@@ -40,103 +46,104 @@ const Review = styled.div`
   .review {
     margin-top: 20px;
   }
+
+  .loading,
+  .loadingText {
+    width: 100px;
+    content: "";
+    color: transparent;
+    animation: loading 3s infinite;
+    border-radius: 10px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .loadingText {
+    width: 150px;
+  }
+
+  .loadingImg {
+    width: 100px;
+    height: 100px;
+    animation: loading 3s infinite;
+    margin-left: auto;
+    margin-right: auto;
+    border-radius: 50%;
+  }
+
+  @keyframes loading {
+    0% {
+      background-color: white;
+    }
+
+    50% {
+      background-color: gray;
+    }
+
+    100% {
+      background-color: white;
+    }
+  }
 `;
 
 const Carousel = () => {
-  const [emblaRef] = useEmblaCarousel();
-  const btnRef = useRef("");
+  const [feedbacks, setfeedbacks] = useState([]);
+  const [feedbacksLoaded, setfeedbacksLoaded] = useState(false);
 
-  const [viewportRef, embla] = useEmblaCarousel({
-    loop: true,
-    skipSnaps: false,
-  });
-
-  const [prevBtnEnabled, setPrevBtnEnabled] = useState(false);
-  const [nextBtnEnabled, setNextBtnEnabled] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
-
-  const scrollPrev = useCallback(() => embla && embla.scrollPrev(), [embla]);
-  const scrollNext = useCallback(() => embla && embla.scrollNext(), [embla]);
-
-  const [number, setNumber] = useState(1);
-
-  const onSelect = useCallback(() => {
-    if (!embla) return;
-    setPrevBtnEnabled(embla.canScrollPrev());
-    setNextBtnEnabled(embla.canScrollNext());
-  }, [embla]);
-
-  const onScroll = useCallback(() => {
-    if (!embla) return;
-    const progress = Math.max(0, Math.min(1, embla.scrollProgress()));
-    setScrollProgress(progress * 100);
-  }, [embla, setScrollProgress]);
+  var settings = {
+    dots: false,
+    infinite: true,
+    speed: 500,
+    arrows: false,
+    slidesToShow: 1,
+    slidesToScroll: 1,
+    autoplay: true,
+    autoplaySpeed: 2000,
+  };
 
   useEffect(() => {
-    if (!embla) return;
-    onSelect();
-    onScroll();
-    embla.on("select", onSelect);
-    embla.on("scroll", onScroll);
+    var requestOptions = {
+      method: "GET",
+      redirect: "follow",
+    };
 
-    // Start scrolling slowly
-    const engine = embla.dangerouslyGetEngine();
-    engine.scrollBody.useSpeed(1);
-    setTimeout(() => {
-      console.log("test");
-    }, 100);
-    engine.scrollTo.index(embla.scrollSnapList().length + number);
-  }, [embla, onSelect, onScroll, number]);
-
-  useEffect(() => {
-    setTimeout(() => {
-      console.log(number + 1);
-      setNumber(number + 1);
-    }, 5000);
-  }, [number]);
-
-  let reviews = [
-    {
-      Name: "John McQueen",
-      Text: "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Autem illum dolore obcaecati laborum sequi, ullam quis deserunt soluta magni a odit possimus minima incidunt beatae. Earum vel ratione distinctio iure?",
-      Image: userImg,
-    },
-    {
-      Name: "Mercy McQueen",
-      Text: "Lorem, ipsum dolor sit amet consectetur laborum sequi, ullam quis deserunt soluta magni a odit possimus minima incidunt beatae. Earum vel ratione distinctio iure?",
-      Image: userImg,
-    },
-    {
-      Name: "Christoper McQueen",
-      Text: "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Aut obcaecati laborum sequi, ullam quis deserunt soluta magni a odit possimus minima incidunt beatae. Earum vel ratione distinctio iure?",
-      Image: userImg,
-    },
-    {
-      Name: "Michael McQueen",
-      Text: "Lorem, ipsum dolor sit amet consectetur adipisicing elit. Autem illum dolore obcaecati laborum sequi, ullam quis deserunt soluta magni a odit possimus minima incidunt beatae. Earum vel ratione  iure?",
-      Image: userImg,
-    },
-  ];
+    fetch("https://easyviews.herokuapp.com/Api/V1/GetFeedback", requestOptions)
+      .then((response) => response.json())
+      .then((result) => {
+        console.log(result.Response);
+        setfeedbacks(result.Response);
+        setfeedbacksLoaded(true);
+      })
+      .catch((error) => console.log("error", error));
+  }, []);
 
   return (
     <Div>
-      <div className="embla" ref={viewportRef}>
-        <div className="embla__container">
-          {reviews.map((review) => {
-            return (
-              <div className="embla__slide" key={review.Name}>
-                <Review>
-                  <div className="img-container">
-                    <Image src={review.Image} alt="Reviewer's Image" />
-                  </div>
-                  <h4 className="name">{review.Name}</h4>
-                  <p className="review">{review.Text}</p>
-                </Review>
+      <Slider {...settings}>
+        {!feedbacksLoaded && (
+          <Review>
+            <div className="img-container loadingImg"></div>
+            <h4 className="name loading">Loading</h4>
+            <p className="review loadingText">Loading</p>
+          </Review>
+        )}
+        {feedbacks.map((feedback) => {
+          return (
+            <Review>
+              <div className="img-container">
+                <Image
+                  src={feedback.ProfilePicture}
+                  alt="Reviewer's Image"
+                  width="100%"
+                  height="100%"
+                />
               </div>
-            );
-          })}
-        </div>
-      </div>
+              <h4 className="name">{feedback.Name}</h4>
+              <p className="review">{feedback.Message}</p>
+            </Review>
+          );
+        })}
+      </Slider>
     </Div>
   );
 };
